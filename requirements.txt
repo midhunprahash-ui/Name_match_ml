@@ -1,0 +1,7 @@
+pandas
+thefuzz
+jellyfish
+scikit-learn
+joblib
+flask
+numpy
