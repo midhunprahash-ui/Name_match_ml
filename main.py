@@ -6,7 +6,7 @@ import joblib
 
 
 app = Flask(__name__)
-model = joblib.load('/Users/midhun/Developer/Git/Name_match_ml/TRAINED_MODELS/model(Accu~90).pkl')
+model = joblib.load('/Users/midhun/Developer/Git/Name_match_ml/TRAINED_MODELS/name_matching_model(DB).pkl')
 
 
 def compute_features(username, employee_name):
