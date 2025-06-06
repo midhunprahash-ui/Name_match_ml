@@ -8,7 +8,7 @@ import joblib
 import numpy as np
 
 # Loading the Dataset
-df=pd.read_csv('/Users/midhun/Developer/Git/Orion_Intern_Journey/TASK_2/Training_data/synthetic_name_match_data.csv')
+df=pd.read_csv('/Users/midhun/Developer/Git/Name_match_ml/TRAINING_DATA/training_data_(4k).csv')
 
 # Feature Engineering
 
@@ -37,7 +37,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 
 # Training the RF model
 
-rf = RandomForestClassifier(n_estimators=80, random_state=32)
+rf = RandomForestClassifier(n_estimators=100, random_state=32)
 rf.fit(X_train, y_train)
 
 # Evaluating the model 
