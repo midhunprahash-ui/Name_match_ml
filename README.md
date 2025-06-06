@@ -39,6 +39,6 @@ To enrich the training data, a variety of string similarity algorithms are used 
 - **Soundex Matching**: Phonetic similarity algorithm
 - **Metaphone Matching**: Advanced phonetic algorithm for English
 
-These features allow the model to capture both visual and phonetic similarities, improving prediction accuracy.
+These features allow the model to capture both visual and phonetic similarities, improving prediction accuracy........
 
 ---
