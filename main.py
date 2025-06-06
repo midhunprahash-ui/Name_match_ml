@@ -6,7 +6,7 @@ import joblib
 
 
 app = Flask(__name__)
-model = joblib.load('/Users/midhun/Developer/Git/Name_match_ml/TRAINING_DATA/training_data(3000).csv')
+model = joblib.load('/Users/midhun/Developer/Git/Name_match_ml/TRAINED_MODELS/model_3000.pkl')
 
 
 def compute_features(username, employee_name):
