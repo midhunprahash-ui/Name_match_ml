@@ -28,7 +28,7 @@ This allows the model to learn patterns that distinguish realistic username-to-e
 
 ---
 
-## 🛠️ Feature Engineering
+## Feature Engineering
 
 To enrich the training data, a variety of string similarity algorithms are used as features:
 
