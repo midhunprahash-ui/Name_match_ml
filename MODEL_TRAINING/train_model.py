@@ -1,5 +1,4 @@
 import pandas as pd
-import psycopg2
 from thefuzz import fuzz
 import jellyfish
 from sklearn.model_selection import train_test_split

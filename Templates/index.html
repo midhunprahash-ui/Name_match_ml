@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Username Matcher</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+        }
+
+        input[type="submit"] {
+            padding: 10px 20px;
+        }
+
+        .section {
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .match {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>🔍 Username Matcher</h2>
+    <form method="POST">
+        <input type="text" name="username" placeholder="Enter username" value="{{ input_username }}" required>
+        <input type="submit" value="Match">
+    </form>
+
+    {% if matches %}
+    <div class="section">
+        <h3>Likely Matches are :</h3>
+        {% for row in matches %}
+        <div class="match">{{ row.employee_name }} (emp_id: {{ row.emp_id }}) — Probability: {{
+            "%.2f"|format(row.probability) }}</div>
+        {% endfor %}
+    </div>
+    {% elif top_matches %}
+    <div class="section">
+        <h3>⚠️ No strong matches found. Top 5 closest:</h3>
+        {% for row in top_matches %}
+        <div class="match">🔎 {{ row.employee_name }} (emp_id: {{ row.emp_id }}) — Probability: {{
+            "%.2f"|format(row.probability) }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</body>
+
+</html>
