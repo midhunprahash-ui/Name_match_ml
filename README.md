@@ -1,7 +1,7 @@
 > [!NOTE]\
 > The `MODEL_TRAINING`, `TRAINED_MODELS`, and related ML files in this repository represent an alternative approach I explored using machine learning to solve the username matching use case. However, after experimentation, I found that traditional string matching algorithms (fuzzy and phonetic matching) deliver more accurate and interpretable results for this specific problem.
 
-Hence, the core files of this project are:
+> Hence, the core files of this project are:
 	•	`main.py`
 	•	`employee_data.csv`
 	•	`templates`/ folder
