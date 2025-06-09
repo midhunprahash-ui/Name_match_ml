@@ -3,11 +3,11 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Name Match</title>
+    <title>Username Matcher</title>
 </head>
 
 <body>
-    <h1>Name Matching</h1>
+    <h1>Username Finder</h1>
 
     <form method="POST">
         <input type="text" name="username" placeholder="Enter username" value="{{ input_username }}">
@@ -15,7 +15,7 @@
     </form>
 
     {% if matches %}
-    <h2>Matches (Top)</h2>
+    <h2>Top Matches</h2>
     <ul>
         {% for match in matches %}
         <li>
@@ -28,7 +28,7 @@
     {% endif %}
 
     {% if top_matches %}
-    <h2>Top 5 Matches</h2>
+    <h2>Possible 5 Matches</h2>
     <ul>
         {% for match in top_matches %}
         <li>
