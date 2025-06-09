@@ -86,7 +86,7 @@ def index():
             )
 
             # Get matches with score >= 70
-            matches_df = employees[employees['score'] >= 70]\
+            matches_df = employees[employees['score'] >= 65]\
                 .sort_values('score', ascending=False)
 
             # Exclude matched emp_ids from top_matches
