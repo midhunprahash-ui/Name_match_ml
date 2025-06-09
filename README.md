@@ -9,7 +9,7 @@ This project is a **Flask web application** that takes a username input and pred
 - Match usernames against employee data using:
   - **Fuzzy string matching** (`thefuzz`)
   - **Phonetic algorithms** (`jellyfish` - Soundex, Metaphone)
-  - **Heuristics** (e.g., employee ID presence in username)
+  - **Heuristics** (e.g., `emp_ID` presence in username)
 - Ranks and returns:
   - **Best matches** (confidence score ≥ 65)
   - **Top suggestions** if no strong match is found
