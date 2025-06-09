@@ -29,8 +29,7 @@ def compute_match_score(username, full_name, first_name, last_name, emp_id):
     partial_last = fuzz.partial_ratio(username, last_name)
     token_set_last = fuzz.token_set_ratio(username, last_name)
     
-    soundex_match_full = int(jellyfish.soundex(username) == jellyfish.soundex(full_name))
-    metaphone_match_full = int(jellyfish.metaphone(username) == jellyfish.metaphone(full_name))
+    
     soundex_match_last = int(jellyfish.soundex(username) == jellyfish.soundex(last_name))
     metaphone_match_last = int(jellyfish.metaphone(username) == jellyfish.metaphone(last_name))
     soundex_match_first = int(jellyfish.soundex(username) == jellyfish.soundex(first_name))
@@ -50,8 +49,6 @@ def compute_match_score(username, full_name, first_name, last_name, emp_id):
         (metaphone_match_last * 10) +
         (soundex_match_first * 10) +  
         (metaphone_match_first * 10)+
-        (soundex_match_full * 10) +  
-        (metaphone_match_full * 10)+
         number_match_bonus
     )
     return min(composite, 100)
