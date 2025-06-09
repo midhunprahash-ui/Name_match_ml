@@ -13,7 +13,7 @@ def compute_match_score(username, full_name, first_name, last_name, emp_id):
     if numbers_in_username:
        
         if str(emp_id) in numbers_in_username:
-            number_match_bonus = 20 
+            number_match_bonus = 15 
     
     lev_full = fuzz.ratio(username, full_name)
     partial_full = fuzz.partial_ratio(username, full_name)
