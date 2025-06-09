@@ -1,3 +1,14 @@
+> [!NOTE]\
+> The `MODEL_TRAINING`, `TRAINED_MODELS`, and related ML files in this repository represent an alternative approach I explored using machine learning to solve the username matching use case. However, after experimentation, I found that traditional string matching algorithms (fuzzy and phonetic matching) deliver more accurate and interpretable results for this specific problem.
+
+Hence, the core files of this project are:
+	•	`main.py`
+	•	`employee_data.csv`
+	•	`templates`/ folder
+
+The ML components are included in the repo for reference only, as part of the experimentation process.
+
+
 # 🔍 Username Matching System
 
 This project is a **Flask web application** that takes a username input and predicts the most likely employee(s) it belongs to using intelligent fuzzy matching and phonetic similarity.
