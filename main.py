@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 def compute_match_score(username, full_name, first_name, last_name):
 
-    
+    #
     lev_full = fuzz.ratio(username, full_name)
     partial_full = fuzz.partial_ratio(username, full_name)
     token_set_full = fuzz.token_set_ratio(username, full_name)
