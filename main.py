@@ -53,4 +53,4 @@ def index():
     return render_template('index.html', matches=matches, top_matches=top_matches, input_username=input_username)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
