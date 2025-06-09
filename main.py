@@ -7,40 +7,40 @@ app = Flask(__name__)
 
 def compute_match_score(username, full_name, first_name, last_name):
     """Calculate score using full name, first name, and last name"""
-    # Scores for full name
+    
     lev_full = fuzz.ratio(username, full_name)
     partial_full = fuzz.partial_ratio(username, full_name)
     token_set_full = fuzz.token_set_ratio(username, full_name)
     
-    # Scores for first name only
+
     lev_first = fuzz.ratio(username, first_name)
     partial_first = fuzz.partial_ratio(username, first_name)
     token_set_first = fuzz.token_set_ratio(username, first_name)
     
-    # Scores for last name only
+    
     lev_last = fuzz.ratio(username, last_name)
     partial_last = fuzz.partial_ratio(username, last_name)
     token_set_last = fuzz.token_set_ratio(username, last_name)
     
-    # Phonetic checks on last name and first name
+    
     soundex_match_last = int(jellyfish.soundex(username) == jellyfish.soundex(last_name))
     metaphone_match_last = int(jellyfish.metaphone(username) == jellyfish.metaphone(last_name))
     soundex_match_first = int(jellyfish.soundex(username) == jellyfish.soundex(first_name))
     metaphone_match_first = int(jellyfish.metaphone(username) == jellyfish.metaphone(first_name))
     
-    # Combine best fuzzy scores from full, first, and last names
+    
     max_lev = max(lev_full, lev_first, lev_last)
     max_partial = max(partial_full, partial_first, partial_last)
     max_token_set = max(token_set_full, token_set_first, token_set_last)
     
-    # Weighted composite score with phonetic bonuses from both first and last names
+    
     composite = (
         (max_lev * 0.4) +
         (max_partial * 0.3) +
         (max_token_set * 0.3) +
         (soundex_match_last * 10) +
         (metaphone_match_last * 10) +
-        (soundex_match_first * 5) +     # smaller weight for first name phonetics
+        (soundex_match_first * 5) +  
         (metaphone_match_first * 5)
     )
     return min(composite, 100)
