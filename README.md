@@ -38,7 +38,7 @@ Your `employee_data.csv` should include the following columns:
 | 102    | Bob        | Smith     |
 
 > [!NOTE]\
-> You must generate a sample `employee_data.csv` file and save it to your project folder in the format given above to use the application.
+> You must generate a sample `employee_data.csv` file and save it to your project folder in the format given above to use the application, or use the `employee_data.csv` file uploaded in the repo.
 
 ---
 
