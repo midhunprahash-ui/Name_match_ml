@@ -46,16 +46,16 @@ Your `employee_data.csv` should include the following columns:
 git clone https://github.com/your-username/username-matching-app.git
 cd username-matching-app
 ```
-## Create Virtual Environment
+2. **Create Virtual Environment**
 ```
 python -m venv venv
 source venv/bin/activate   # On Windows: venv\Scripts\activate
 ```
-## Install Dependencies
+3. **Install Dependencies**
 ```
 pip install -r requirements.txt
 ```
-## Run the app
+4. **Run the app**
 
 ```
 python app.py
