@@ -85,13 +85,19 @@ def index():
                 ), axis=1
             )
 
-            matches = employees[employees['score'] >= 70]\
-                .sort_values('score', ascending=False)\
-                .to_dict(orient='records')
+            # Get matches with score >= 70
+            matches_df = employees[employees['score'] >= 70]\
+                .sort_values('score', ascending=False)
 
-            top_matches = employees.sort_values('score', ascending=False)\
-                .head(5)\
-                .to_dict(orient='records')
+            # Exclude matched emp_ids from top_matches
+            excluded_ids = set(matches_df['emp_id'])
+            top_matches_df = employees[~employees['emp_id'].isin(excluded_ids)]\
+                .sort_values('score', ascending=False)\
+                .head(5)
+
+            # Convert to dict for template rendering
+            matches = matches_df.to_dict(orient='records')
+            top_matches = top_matches_df.to_dict(orient='records')
 
     return render_template(
         'index.html',
@@ -99,6 +105,7 @@ def index():
         top_matches=top_matches,
         input_username=input_username
     )
+
 
 
 if __name__ == '__main__':
