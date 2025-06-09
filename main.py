@@ -87,8 +87,15 @@ def upload_file():
             return render_template('upload.html', error='Invalid file type.  Only CSV files are allowed.')
     return render_template('upload.html')
 
-@app.route('/index')
+@app.route('/index', methods=['GET', 'POST'])
 def index():
+    if request.method == 'POST':
+        input_username = request.form.get('username', '').strip().lower()
+    
+    else:
+        input_username = request.args.get('username', '').strip().lower()
+    
+
     filename = request.args.get('filename')
     if not filename:
         return "No file specified", 400
