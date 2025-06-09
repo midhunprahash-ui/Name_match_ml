@@ -1,46 +1,62 @@
+# 🔍 Username Matching System
 
-# Username Matching - ML Mini Project
-
-## Use Case
-
-This project aims to **predict the most likely employee(s)** behind a given username by analyzing and comparing it against a dataset of employee names. When a user enters a username, the system returns a ranked list of matching employees along with:
-
-- **Employee Name**
-- **Employee ID**
-- **Probability Score** indicating the likelihood of a match
-
-This can be useful in enterprise systems where usernames are not standardized, or where usernames need to be mapped back to known employee identities.
+This project is a **Flask web application** that takes a username input and predicts the most likely employee(s) it belongs to using intelligent fuzzy matching and phonetic similarity.
 
 ---
 
-## Role of Machine Learning
+## 🚀 Features
 
-A **Random Forest classifier** is trained on a dataset of 40,000 records containing:
-
-- Employee names
-- Corresponding possible usernames (realistic or artificial)
-
-Each record is labeled:
-- `1` for a **true match** (username corresponds to the employee)
-- `0` for a **false match** (username does not belong to the employee)
-
-This allows the model to learn patterns that distinguish realistic username-to-employee matches.
+- Match usernames against employee data using:
+  - **Fuzzy string matching** (`thefuzz`)
+  - **Phonetic algorithms** (`jellyfish` - Soundex, Metaphone)
+  - **Heuristics** (e.g., employee ID presence in username)
+- Ranks and returns:
+  - **Best matches** (confidence score ≥ 65)
+  - **Top suggestions** if no strong match is found
+- Clean web UI for input and result display
 
 ---
 
-## Feature Engineering
+## 🧠 Tech Stack
 
-To enrich the training data, a variety of string similarity algorithms are used as features:
-
-- **Levenshtein Distance**: Measures character-level edits between strings
-- **FuzzyWuzzy Ratios**:
-- **partial_ratio**
-- **token_set_ratio**
-- **Soundex Matching**: Phonetic similarity algorithm
-- **Metaphone Matching**: Advanced phonetic algorithm for English
-
-These features allow the model to capture both visual and phonetic similarities, improving prediction accuracy........
+| Component     | Technology        |
+|---------------|-------------------|
+| Backend       | Python 3, Flask   |
+| Matching Algo | thefuzz, jellyfish|
+| Frontend      | HTML (via Jinja)  |
+| Data Handling | pandas            |
 
 ---
 
+## 📊 Employee CSV Format
 
+Your `employee_data.csv` should include the following columns:
+
+| emp_id | first_name | last_name |
+|--------|------------|-----------|
+| 101    | Alice      | Johnson   |
+| 102    | Bob        | Smith     |
+
+---
+
+## 🛠️ Setup & Installation
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/your-username/username-matching-app.git
+cd username-matching-app
+```
+## Create Virtual Environment
+```
+python -m venv venv
+source venv/bin/activate   # On Windows: venv\Scripts\activate
+```
+## Install Dependencies
+```
+pip install -r requirements.txt
+```
+## Run the app
+
+```
+python app.py
+```
