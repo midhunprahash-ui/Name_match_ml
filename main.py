@@ -6,7 +6,7 @@ import jellyfish
 app = Flask(__name__)
 
 def compute_match_score(username, full_name, first_name, last_name):
-    """Calculate score using full name, first name, and last name"""
+
     
     lev_full = fuzz.ratio(username, full_name)
     partial_full = fuzz.partial_ratio(username, full_name)
@@ -76,7 +76,7 @@ def index():
                 ), axis=1
             )
 
-            matches = employees[employees['score'] >= 80]\
+            matches = employees[employees['score'] >= 70]\
                 .sort_values('score', ascending=False)\
                 .to_dict(orient='records')
 
