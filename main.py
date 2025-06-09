@@ -2,12 +2,13 @@ from flask import Flask, render_template, request
 import pandas as pd
 from thefuzz import fuzz
 import jellyfish
+import  re
 
 app = Flask(__name__)
 
-def compute_match_score(username, full_name, first_name, last_name):
+def compute_match_score(username, full_name, first_name, last_name, emp_id):
 
-    #
+    
     lev_full = fuzz.ratio(username, full_name)
     partial_full = fuzz.partial_ratio(username, full_name)
     token_set_full = fuzz.token_set_ratio(username, full_name)
@@ -41,7 +42,8 @@ def compute_match_score(username, full_name, first_name, last_name):
         (soundex_match_last * 10) +
         (metaphone_match_last * 10) +
         (soundex_match_first * 5) +  
-        (metaphone_match_first * 5)
+        (metaphone_match_first * 5)+
+        number_match_bonus
     )
     return min(composite, 100)
 
@@ -72,7 +74,8 @@ def index():
                     input_username,
                     row['employee_name'].lower(),
                     row['first_name'].lower(),
-                    row['last_name'].lower()
+                    row['last_name'].lower(),
+                    row['emp_id']
                 ), axis=1
             )
 
