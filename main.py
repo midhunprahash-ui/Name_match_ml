@@ -119,7 +119,7 @@ def index():
         )
         matches_df = employees[employees['score'] >= 65].sort_values('score', ascending=False)
         excluded_ids = set(matches_df['emp_id'])
-        top_matches_df = employees[~employees['emp_id'].isin(excluded_ids].sort_values('score', ascending=False).head(5)
+        top_matches_df = employees[~employees['emp_id'].isin(excluded_ids)].sort_values('score', ascending=False).head(5)
 
         matches = matches_df.to_dict(orient='records')
         top_matches = top_matches_df.to_dict(orient='records')
