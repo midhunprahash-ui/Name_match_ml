@@ -8,6 +8,12 @@ app = Flask(__name__)
 
 def compute_match_score(username, full_name, first_name, last_name, emp_id):
 
+    numbers_in_username = re.findall(r'\d+', username)
+    number_match_bonus = 0
+    if numbers_in_username:
+       
+        if str(emp_id) in numbers_in_username:
+            number_match_bonus = 20 
     
     lev_full = fuzz.ratio(username, full_name)
     partial_full = fuzz.partial_ratio(username, full_name)
