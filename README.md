@@ -7,6 +7,7 @@ Hence, the core files of this project are:
 	•	`templates`/ folder
 
 The ML components are included in the repo for reference only, as part of the experimentation process.
+---
 
 
 # 🔍 Username Matching System
