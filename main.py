@@ -47,8 +47,8 @@ def compute_match_score(username, full_name, first_name, last_name, emp_id):
         (max_token_set * 0.3) +
         (soundex_match_last * 10) +
         (metaphone_match_last * 10) +
-        (soundex_match_first * 5) +  
-        (metaphone_match_first * 5)+
+        (soundex_match_first * 10) +  
+        (metaphone_match_first * 10)+
         number_match_bonus
     )
     return min(composite, 100)
