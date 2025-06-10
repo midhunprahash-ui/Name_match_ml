@@ -59,18 +59,18 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     max_partial = max(partial_full, partial_first, partial_last)
     max_token_set = max(token_set_full, token_set_first, token_set_last) # Ensure this uses the correct variable
     
-    # Composite score calculation with original weights and bonuses
+
     composite = (
         (max_lev * 0.4) +
         (max_partial * 0.3) +
         (max_token_set * 0.3) +
-        (soundex_match_last * 10) +  # Reverted to original value
-        (metaphone_match_last * 10) + # Reverted to original value
-        (soundex_match_first * 5) +  # Reverted to original value
-        (metaphone_match_first * 5) + # Reverted to original value
+        (soundex_match_last * 10) + 
+        (metaphone_match_last * 10) +
+        (soundex_match_first * 5) +  
+        (metaphone_match_first * 5) + 
         number_match_bonus
     )
-    return min(composite, 100) # Cap the score at 100
+    return min(composite, 100) 
 
 def fetch_employees(csv_file_buffer):
     
@@ -115,7 +115,7 @@ def fetch_employees(csv_file_buffer):
                 else:
                     df['last_name'] = ''
             elif 'first_name' in df.columns and 'last_name' in df.columns:
-                # If all three exist, ensure first_name and last_name are processed and then employee_name is consistent
+
                 df['first_name'] = df['first_name'].fillna('').astype(str).str.strip()
                 df['last_name'] = df['last_name'].fillna('').astype(str).str.strip()
                 df['employee_name'] = df['first_name'] + ' ' + df['last_name']
