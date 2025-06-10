@@ -1,4 +1,4 @@
-EMP_ID,First_Name,Last_Name
+id_employee,given_name,family_name
 1,Rajesh,Reddy
 2,Anjali,Malhotra
 3,Sanjay,Kulkarni

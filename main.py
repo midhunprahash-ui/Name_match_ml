@@ -53,15 +53,51 @@ def compute_match_score(username, full_name, first_name, last_name, emp_id):
 )
     return min(composite, 100)
 
+import pandas as pd
+
 def fetch_employees():
+    CANONICAL_COLUMN_ALIASES = {
+        'emp_id': ['employee_id', 'employee id', 'id_employee', 'staff_id', 'emp id', 'empid', 'id', 'employee no', 'emp no'],
+        'first_name': ['first name', 'fname', 'given_name', 'first', 'f_name', 'name (first)', 'namefirst'],
+        'last_name': ['last name', 'lname', 'surname', 'family_name', 'l_name', 'name (last)', 'namelast']
+    }
+
     try:
         df = pd.read_csv('employee_data.csv')
-        df.columns = df.columns.str.lower()
-        if {'emp_id', 'first_name', 'last_name'}.issubset(df.columns):
-            df['employee_name'] = df['first_name'].str.strip() + ' ' + df['last_name'].str.strip()
-            return df[['emp_id', 'employee_name', 'first_name', 'last_name']]
+        df.columns = df.columns.str.lower() # Step 1: Normalize incoming column names to lowercase
+
+        # Step 2: Iterate through canonical names and their aliases to perform renaming
+        for canonical_name, aliases in CANONICAL_COLUMN_ALIASES.items():
+            # Check if any of the aliases exist in the DataFrame's current columns
+            # We iterate through aliases to find the first match
+            for alias in aliases:
+                if alias in df.columns and alias != canonical_name:
+                    # If an alias is found and it's not already the canonical name, rename it
+                    df.rename(columns={alias: canonical_name}, inplace=True)
+                    print(f"Renamed '{alias}' to '{canonical_name}'") # Added for clarity
+                    break # Stop checking aliases for this canonical_name once a match is found and renamed
+                elif canonical_name in df.columns: # If the canonical name itself is already present
+                    break # No need to check aliases for this canonical name, it's already there
+
+        # Step 3: Verify that the *canonical* required columns are now present
+        required_columns = ['emp_id', 'first_name', 'last_name']
+        if not all(col in df.columns for col in required_columns):
+            missing_cols = [col for col in required_columns if col not in df.columns]
+            print(f"Error: After renaming, missing required canonical columns: {', '.join(missing_cols)}")
+            return pd.DataFrame(columns=['emp_id', 'employee_name', 'first_name', 'last_name'])
+
+        # Step 4: Proceed with operations using the canonical column names
+        df['employee_name'] = df['first_name'].astype(str).str.strip() + ' ' + df['last_name'].astype(str).str.strip()
+
+        return df[['emp_id', 'employee_name', 'first_name', 'last_name']]
+
+    except FileNotFoundError:
+        print("Error: 'employee_data.csv' not found. Please make sure the file is in the correct directory.")
+    except pd.errors.EmptyDataError:
+        print("Error: 'employee_data.csv' is empty.")
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"An unexpected error occurred: {e}")
+
     return pd.DataFrame(columns=['emp_id', 'employee_name', 'first_name', 'last_name'])
 
 @app.route('/', methods=['GET', 'POST'])
