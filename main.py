@@ -8,6 +8,7 @@ import io
 
 
 app = Flask(__name__)
+app.secret_key = 'your_super_secret_key_here'
 
 
 
@@ -21,6 +22,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 NUM_TOP_GROUP_MATCHES = 5
 NUM_ADDITIONAL_POSSIBLE_MATCHES = 10
+
 TOP_MATCH_THRESHOLD = 65
 TOTAL_MATCHES_TO_DISPLAY = NUM_TOP_GROUP_MATCHES + NUM_ADDITIONAL_POSSIBLE_MATCHES
 
@@ -239,7 +241,7 @@ def index():
                             match_type = 'Top Match'
                         else:
                             match_type = 'Best Match (Below Threshold)'
-                            
+
                     elif rank_idx < NUM_TOP_GROUP_MATCHES:
                         
                         match_type = 'Top Match'
