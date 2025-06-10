@@ -9,30 +9,30 @@
 <body>
     <h1>Username Finder</h1>
 
-    <form method="GET" action="{{ url_for('index') }}">
+    <form method="POST">
         <input type="text" name="username" placeholder="Enter username" value="{{ input_username }}">
         <button type="submit">Search</button>
     </form>
 
     {% if matches %}
-    <h2>Top Matches:</h2>
+    <h2>Top Matches : </h2>
     <ul>
         {% for match in matches %}
         <li>
-            {{ match.employee_name }} (ID: {{ match.emp_id }}) - Confidence: {{ match.score | round(2) }}%
+            {{ match.employee_name }} (ID: {{ match.emp_id }}) - Confidence : {{ match.score | round(2) }} %
         </li>
         {% endfor %}
     </ul>
     {% else %}
-    <p>No matches found!</p>
+    <p>No matches Found !</p>
     {% endif %}
 
     {% if top_matches %}
-    <h2>Possible Other 5 Matches:</h2>
+    <h2>Possible Other 5 Matches : </h2>
     <ul>
         {% for match in top_matches %}
         <li>
-            {{ match.employee_name }} (ID: {{ match.emp_id }}) - Confidence: {{ match.score | round(2) }}%
+            {{ match.employee_name }} (ID: {{ match.emp_id }}) - Confidence : {{ match.score | round(2) }} %
         </li>
         {% endfor %}
     </ul>
@@ -40,3 +40,6 @@
 </body>
 
 </html>
+
+
+modify the html also for the main.py
