@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Batch Employee Name Matcher</title>
+    <title>Employee Username Matcher</title>
     <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -75,7 +75,7 @@
 
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="container">
-        <h1 class="text-3xl font-extrabold text-gray-900 text-center mb-6">Batch Employee Name Matcher</h1>
+        <h1 class="text-3xl font-extrabold text-gray-900 text-center mb-6">Employee Name Matcher</h1>
 
         <!-- Section to display flash messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -111,7 +111,7 @@
             <div class="flex items-center justify-between">
                 <button type="submit"
                     class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-200 ease-in-out transform hover:scale-105">
-                    Process & Download Matches
+                    Download CSV
                 </button>
             </div>
         </form>
