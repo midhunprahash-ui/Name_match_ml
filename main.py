@@ -62,8 +62,8 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
         (max_token_set * 0.3) +
         (soundex_match_last * 10) +
         (metaphone_match_last * 10) +
-        (soundex_match_first * 6) +  
-        (metaphone_match_first * 6)+
+        (soundex_match_first * 5) +  
+        (metaphone_match_first * 5)+
         number_match_bonus
     )
     return min(composite, 100) 
@@ -147,7 +147,7 @@ def index():
         employee_csv_file = request.files.get('employee_csv_file')
         usernames_csv_file = request.files.get('usernames_csv_file')
 
-        # Validate Employee Data CSV upload
+        
         if not employee_csv_file or employee_csv_file.filename == '':
             flash("Error: Please upload the Employee Data CSV.", "error")
             return redirect(url_for('index'))
@@ -155,7 +155,7 @@ def index():
             flash("Error: Employee Data file must be a CSV.", "error")
             return redirect(url_for('index'))
 
-        # Validate Usernames CSV upload
+        
         if not usernames_csv_file or usernames_csv_file.filename == '':
             flash("Error: Please upload the Usernames CSV for matching.", "error")
             return redirect(url_for('index'))
@@ -163,21 +163,21 @@ def index():
             flash("Error: Usernames file must be a CSV.", "error")
             return redirect(url_for('index'))
 
-        # Process Employee Data CSV
+        
         employees_df = fetch_employees(employee_csv_file)
         if employees_df.empty:
-            # flash message already handled in fetch_employees if an error occurred
+            
             return redirect(url_for('index'))
 
-        # Process Usernames CSV
+        
         try:
             usernames_df = pd.read_csv(usernames_csv_file)
-            usernames_df.columns = usernames_df.columns.str.lower() # Normalize column names
+            usernames_df.columns = usernames_df.columns.str.lower() 
             if 'username' not in usernames_df.columns:
                 flash("Error: The Usernames CSV must contain a column named 'username'.", "error")
                 return redirect(url_for('index'))
             
-            # Convert username column to list of strings
+           
             input_usernames = usernames_df['username'].astype(str).tolist()
         except pd.errors.EmptyDataError:
             flash("Error: The Usernames CSV file is empty.", "error")
@@ -186,15 +186,15 @@ def index():
             flash(f"Error reading Usernames CSV: {e}", "error")
             return redirect(url_for('index'))
 
-        all_results_for_csv = [] # This will store the final rows for the output CSV
+        final_output_rows = [] 
 
         if employees_df.empty or not input_usernames:
             flash("No employee data or usernames to process. Please check your uploaded files.", "warning")
             return redirect(url_for('index'))
 
-        # Iterate through each username from the input CSV
+        
         for input_username in input_usernames:
-            # Apply the matching score to each employee for the current username
+            
             employees_df['current_score'] = employees_df.apply(
                 lambda row: compute_match_score(
                     input_username,
@@ -205,91 +205,98 @@ def index():
                 ), axis=1
             )
             
-            # Sort all employees by their score for the current username
+            
             sorted_matches = employees_df.sort_values('current_score', ascending=False)
             
-            top_match_info = {
-                'Input_Username': input_username,
-                'Top_Match_Employee_ID': 'N/A',
-                'Top_Match_Employee_Name': 'N/A',
-                'Top_Match_Confidence_Score': '0.00%', 
-                'Other_Matches_Details': ''
-            }
-
-            # Find candidates for top match (score >= TOP_MATCH_THRESHOLD)
-            high_confidence_matches = sorted_matches[sorted_matches['current_score'] >= TOP_MATCH_THRESHOLD]
             
-            main_top_match_found = False
-            top_match_employee_id = None # To store the ID of the chosen top match to exclude it from 'others'
+            relevant_matches = sorted_matches[sorted_matches['current_score'] > 0]
 
-            if not high_confidence_matches.empty:
-                # The very best match among those above threshold
-                best_high_confidence_match = high_confidence_matches.iloc[0]
-                top_match_info['Top_Match_Employee_ID'] = best_high_confidence_match['emp_id']
-                top_match_info['Top_Match_Employee_Name'] = best_high_confidence_match['employee_name']
-                top_match_info['Top_Match_Confidence_Score'] = f"{best_high_confidence_match['current_score']:.2f}%"
-                top_match_employee_id = best_high_confidence_match['emp_id']
-                main_top_match_found = True
-            elif not sorted_matches.empty and sorted_matches.iloc[0]['current_score'] > 0:
-                # If no matches above threshold, pick the highest scoring one (even if below threshold)
-                best_overall_match = sorted_matches.iloc[0]
-                top_match_info['Top_Match_Employee_ID'] = best_overall_match['emp_id']
-                top_match_info['Top_Match_Employee_Name'] = best_overall_match['employee_name']
-                top_match_info['Top_Match_Confidence_Score'] = f"{best_overall_match['current_score']:.2f}%"
-                top_match_employee_id = best_overall_match['emp_id']
-                main_top_match_found = True
+           
+            top_match_found_for_username = False
 
-            # Collect details for the next NUM_OTHER_MATCHES
-            other_matches_list = []
-            
-            # Filter out the main top match (if one was found) from the sorted list
-            if main_top_match_found:
-                # Exclude the row that was identified as the main top match
-                remaining_matches = sorted_matches[sorted_matches['emp_id'] != top_match_employee_id]
+        
+            if not relevant_matches.empty:
+                best_overall_match = relevant_matches.iloc[0]
+                
+                if best_overall_match['current_score'] >= TOP_MATCH_THRESHOLD:
+                    
+                    final_output_rows.append({
+                        'username': input_username,
+                        'emp_id': best_overall_match['emp_id'],
+                        'emp_name': best_overall_match['employee_name'],
+                        'confidence_score': f"{best_overall_match['current_score']:.2f}%"
+                    })
+                    top_match_found_for_username = True
+                    matches_for_others = relevant_matches[relevant_matches['emp_id'] != best_overall_match['emp_id']]
+                else:
+                    matches_for_others = relevant_matches
             else:
-                remaining_matches = sorted_matches # If no top match found, all are 'other' candidates
+                final_output_rows.append({
+                    'username': input_username,
+                    'emp_id': 'N/A',
+                    'emp_name': 'N/A',
+                    'confidence_score': '0.00%'
+                })
+                matches_for_others = pd.DataFrame() 
+            if not top_match_found_for_username and not matches_for_others.empty:
 
-            # Take the top N from the remaining matches
-            other_relevant_matches = remaining_matches.head(NUM_OTHER_MATCHES)
-
-            for rank_idx, (_, match_row) in enumerate(other_relevant_matches.iterrows()):
-                if match_row['current_score'] > 0: # Only include if score is positive
-                    other_matches_list.append(
-                        f"Rank {rank_idx + 2}: {match_row['employee_name']} (ID: {match_row['emp_id']}, Score: {match_row['current_score']:.2f}%)"
-                    )
+                for rank_idx, (_, match_row) in enumerate(matches_for_others.head(NUM_OTHER_MATCHES + 1).iterrows()): 
+                    final_output_rows.append({
+                        'username': input_username,
+                        'emp_id': match_row['emp_id'],
+                        'emp_name': match_row['employee_name'],
+                        'confidence_score': f"{match_row['current_score']:.2f}%"
+                    })
+            elif top_match_found_for_username and not matches_for_others.empty:
+                for rank_idx, (_, match_row) in enumerate(matches_for_others.head(NUM_OTHER_MATCHES).iterrows()):
+                    final_output_rows.append({
+                        'username': input_username,
+                        'emp_id': match_row['emp_id'],
+                        'emp_name': match_row['employee_name'],
+                        'confidence_score': f"{match_row['current_score']:.2f}%"
+                    })
             
-            # Join with newline character for multi-line cell in CSV
-            # CSV readers like Excel interpret \n as a new line within a cell if text is wrapped
-            top_match_info['Other_Matches_Details'] = "\n".join(other_matches_list)
             
-            all_results_for_csv.append(top_match_info)
+            if len(final_output_rows) > 0 and input_username == final_output_rows[-1]['username']:
+                
+                if final_output_rows[-1]['username'] != input_usernames[0] or len(input_usernames) > 1:
+                     final_output_rows.append({
+                        'username': '',
+                        'emp_id': '',
+                        'emp_name': '--- End of matches for this username ---', 
+                        'confidence_score': ''
+                    })
 
-        if not all_results_for_csv:
+        if not final_output_rows:
             flash("No matches could be processed. Please check your CSV files and data.", "warning")
             return redirect(url_for('index'))
 
-        # Convert the list of dictionaries to a DataFrame
-        results_df = pd.DataFrame(all_results_for_csv)
+        results_df = pd.DataFrame(final_output_rows)
 
-        # Create an in-memory CSV file for download
+        results_df['temp_score'] = results_df['confidence_score'].str.replace('%', '')
+        results_df['temp_score'] = pd.to_numeric(results_df['temp_score'], errors='coerce')
+        results_df['temp_score'] = results_df['temp_score'].fillna(-1.0) 
+
+        results_df['temp_username_sort'] = results_df['username'].apply(lambda x: x if x else '~') 
+
+        results_df = results_df.sort_values(by=['temp_username_sort', 'temp_score'], ascending=[True, False])
+        
+        results_df = results_df.drop(columns=['temp_score', 'temp_username_sort'])
+
         output_buffer = io.StringIO()
         results_df.to_csv(output_buffer, index=False)
-        output_buffer.seek(0) # Rewind the buffer to the beginning
-
-        # Send the CSV as a downloadable file
+        output_buffer.seek(0) 
         flash("Match results CSV downloaded!", "success")
         return send_file(
-            io.BytesIO(output_buffer.getvalue().encode('utf-8')), # Convert StringIO to BytesIO for send_file
+            io.BytesIO(output_buffer.getvalue().encode('utf-8')), 
             mimetype='text/csv',
             as_attachment=True,
-            download_name='username_matches_detailed.csv' # New, more descriptive filename
+            download_name='username_matches_simplified.csv' 
         )
 
-    # For GET request (initial page load)
     return render_template('index.html')
 
 if __name__ == '__main__':
-    # For development: create a temporary 'uploads' directory if it doesn't exist
     if not os.path.exists('uploads'):
         os.makedirs('uploads')
     app.run(debug=True)
