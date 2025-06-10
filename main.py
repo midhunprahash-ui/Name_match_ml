@@ -20,12 +20,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 
 
 
-NUM_TOP_GROUP_MATCHES = 5
-NUM_ADDITIONAL_POSSIBLE_MATCHES = 10
-
-TOP_MATCH_THRESHOLD = 65
-TOTAL_MATCHES_TO_DISPLAY = NUM_TOP_GROUP_MATCHES + NUM_ADDITIONAL_POSSIBLE_MATCHES
-
+NUM_OTHER_MATCHES = 5 
+TOP_MATCH_THRESHOLD = 70
 
 def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     
@@ -37,10 +33,9 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     numbers_in_username = re.findall(r'\d+', username_lower)
     number_match_bonus = 0
     if numbers_in_username:
-        
-        if str(emp_id).lower() in numbers_in_username: 
-            number_match_bonus = 10 
-    
+       
+        if str(emp_id) in numbers_in_username:
+            number_match_bonus = 8 
     
     lev_full = fuzz.ratio(username_lower, employee_name_lower)
     partial_full = fuzz.partial_ratio(username_lower, employee_name_lower)
@@ -283,7 +278,7 @@ def index():
             io.BytesIO(output_buffer.getvalue().encode('utf-8')), 
             mimetype='text/csv',
             as_attachment=True,
-            download_name='username_matches.csv' 
+            download_name='username_matches_simplified.csv' 
         )
 
     return render_template('index.html')
