@@ -19,7 +19,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 
 NUM_OTHER_MATCHES = 5 
-TOP_MATCH_THRESHOLD = 70
+TOP_MATCH_THRESHOLD = 65
 
 def compute_match_score(username, employee_name, first_name, last_name, emp_id):
 
@@ -263,7 +263,7 @@ def index():
                      final_output_rows.append({
                         'username': '',
                         'emp_id': '',
-                        'emp_name': '--- End of matches for this username ---', 
+                        'emp_name': '', 
                         'confidence_score': ''
                     })
 
