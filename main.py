@@ -53,48 +53,67 @@ def compute_match_score(username, full_name, first_name, last_name, emp_id):
 )
     return min(composite, 100)
 
-import pandas as pd
-
 def fetch_employees():
     CANONICAL_COLUMN_ALIASES = {
         'emp_id': ['employee_id', 'employee id', 'id_employee', 'staff_id', 'emp id', 'empid', 'id', 'employee no', 'emp no'],
         'first_name': ['first name', 'fname', 'given_name', 'first', 'f_name', 'name (first)', 'namefirst'],
-        'last_name': ['last name', 'lname', 'surname', 'family_name', 'l_name', 'name (last)', 'namelast']
+        'last_name': ['last name', 'lname', 'surname', 'family_name', 'l_name', 'name (last)', 'namelast'],
+        'employee_name': ['full name', 'fullname', 'emp_name', 'name of employee', 'name'] 
     }
 
     try:
-        df = pd.read_csv('employee_data.csv')
-        df.columns = df.columns.str.lower() # Step 1: Normalize incoming column names to lowercase
+        df = pd.read_csv('/Users/midhun/Developer/Git/Name_match_ml/training_data(3000).csv')
+        df.columns = df.columns.str.lower() 
 
-        # Step 2: Iterate through canonical names and their aliases to perform renaming
         for canonical_name, aliases in CANONICAL_COLUMN_ALIASES.items():
-            # Check if any of the aliases exist in the DataFrame's current columns
-            # We iterate through aliases to find the first match
             for alias in aliases:
                 if alias in df.columns and alias != canonical_name:
-                    # If an alias is found and it's not already the canonical name, rename it
                     df.rename(columns={alias: canonical_name}, inplace=True)
-                    print(f"Renamed '{alias}' to '{canonical_name}'") # Added for clarity
-                    break # Stop checking aliases for this canonical_name once a match is found and renamed
-                elif canonical_name in df.columns: # If the canonical name itself is already present
-                    break # No need to check aliases for this canonical name, it's already there
+                    print(f"Renamed '{alias}' to '{canonical_name}'")
+                    break
+                elif canonical_name in df.columns:
+                    break
 
-        # Step 3: Verify that the *canonical* required columns are now present
-        required_columns = ['emp_id', 'first_name', 'last_name']
-        if not all(col in df.columns for col in required_columns):
-            missing_cols = [col for col in required_columns if col not in df.columns]
-            print(f"Error: After renaming, missing required canonical columns: {', '.join(missing_cols)}")
+       
+        if 'employee_name' in df.columns and ('first_name' not in df.columns or 'last_name' not in df.columns):
+            print("Detected 'employee_name' column. Attempting to split into 'first_name' and 'last_name'.")
+            
+            df['employee_name'] = df['employee_name'].astype(str).str.strip()
+
+            
+            name_parts = df['employee_name'].str.split(n=1, expand=True)
+
+            if len(name_parts.columns) > 0:
+                df['first_name'] = name_parts[0].fillna('').str.strip()
+                if len(name_parts.columns) > 1:
+                    df['last_name'] = name_parts[1].fillna('').str.strip()
+                else:
+                    df['last_name'] = '' 
+                print("Successfully split 'employee_name' into 'first_name' and 'last_name'.")
+            else:
+                df['first_name'] = ''
+                df['last_name'] = ''
+                print("Warning: Could not split 'employee_name' into 'first_name' and 'last_name'. They will be empty.")
+
+
+        required_processing_columns = ['emp_id', 'first_name', 'last_name']
+        if not all(col in df.columns for col in required_processing_columns):
+            missing_cols = [col for col in required_processing_columns if col not in df.columns]
+            print(f"Error: After processing, missing critical columns for employee data: {', '.join(missing_cols)}")
             return pd.DataFrame(columns=['emp_id', 'employee_name', 'first_name', 'last_name'])
 
-        # Step 4: Proceed with operations using the canonical column names
-        df['employee_name'] = df['first_name'].astype(str).str.strip() + ' ' + df['last_name'].astype(str).str.strip()
+        df['first_name'] = df['first_name'].fillna('').astype(str).str.strip()
+        df['last_name'] = df['last_name'].fillna('').astype(str).str.strip()
+
+        df['employee_name'] = df['first_name'] + ' ' + df['last_name']
+        df['employee_name'] = df['employee_name'].str.replace(r'\s+', ' ', regex=True).str.strip()
 
         return df[['emp_id', 'employee_name', 'first_name', 'last_name']]
 
     except FileNotFoundError:
-        print("Error: 'employee_data.csv' not found. Please make sure the file is in the correct directory.")
+        print("Error: The specified CSV file was not found at '/Users/midhun/Developer/Git/Name_match_ml/employees.csv'. Please check the path.")
     except pd.errors.EmptyDataError:
-        print("Error: 'employee_data.csv' is empty.")
+        print("Error: The CSV file is empty.")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
