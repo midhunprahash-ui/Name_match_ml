@@ -238,7 +238,7 @@ def index():
                         match_type = 'Top Match'
                     else:
                         # The matches within the "other 10 possible matches" group
-                        match_type = f'Other Possible Match {rank_idx - NUM_TOP_GROUP_MATCHES + 1}'
+                        match_type = f'Possible Match {rank_idx - NUM_TOP_GROUP_MATCHES + 1}'
 
                     final_output_rows.append({
                         'username': input_username,
