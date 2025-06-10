@@ -18,55 +18,59 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 
 
 
-NUM_OTHER_MATCHES = 5 
+NUM_OTHER_MATCHES = 10
 TOP_MATCH_THRESHOLD = 65
 
 def compute_match_score(username, employee_name, first_name, last_name, emp_id):
 
-    numbers_in_username = re.findall(r'\d+', username)
+    username_lower = str(username).lower()
+    employee_name_lower = str(employee_name).lower()
+    first_name_lower = str(first_name).lower()
+    last_name_lower = str(last_name).lower()
+
+    numbers_in_username = re.findall(r'\d+', username_lower)
     number_match_bonus = 0
     if numbers_in_username:
-       
-        if str(emp_id) in numbers_in_username:
-            number_match_bonus = 10
+        # Check if any number from username matches part of emp_id
+        if str(emp_id).lower() in numbers_in_username: # Ensure emp_id is string and lower for consistent comparison
+            number_match_bonus = 10 # Reverted to original value
     
-    lev_full = fuzz.ratio(username, employee_name)
-    partial_full = fuzz.partial_ratio(username, employee_name)
-    token_set_full = fuzz.token_set_ratio(username, employee_name)
+    # Fuzzy string matching scores (0-100) using lowercased inputs
+    lev_full = fuzz.ratio(username_lower, employee_name_lower)
+    partial_full = fuzz.partial_ratio(username_lower, employee_name_lower)
+    token_set_full = fuzz.token_set_ratio(username_lower, employee_name_lower)
     
-
-    lev_first = fuzz.ratio(username, first_name)
-    partial_first = fuzz.partial_ratio(username, first_name)
-    token_set_first = fuzz.token_set_ratio(username, first_name)
+    lev_first = fuzz.ratio(username_lower, first_name_lower)
+    partial_first = fuzz.partial_ratio(username_lower, first_name_lower)
+    token_set_first = fuzz.token_set_ratio(username_lower, first_name_lower)
     
+    lev_last = fuzz.ratio(username_lower, last_name_lower)
+    partial_last = fuzz.partial_ratio(username_lower, last_name_lower)
+    token_set_last = fuzz.token_set_ratio(username_lower, last_name_lower) # Corrected variable name from 'token_last'
     
-    lev_last = fuzz.ratio(username, last_name)
-    partial_last = fuzz.partial_ratio(username, last_name)
-    token_set_last = fuzz.token_set_ratio(username, last_name)
+    # Phonetic matching (0 or 1, then scaled) using lowercased inputs
+    soundex_match_last = int(jellyfish.soundex(username_lower) == jellyfish.soundex(last_name_lower))
+    metaphone_match_last = int(jellyfish.metaphone(username_lower) == jellyfish.metaphone(last_name_lower))
+    soundex_match_first = int(jellyfish.soundex(username_lower) == jellyfish.soundex(first_name_lower))
+    metaphone_match_first = int(jellyfish.metaphone(username_lower) == jellyfish.metaphone(first_name_lower))
     
-    
-    soundex_match_last = int(jellyfish.soundex(username) == jellyfish.soundex(last_name))
-    metaphone_match_last = int(jellyfish.metaphone(username) == jellyfish.metaphone(last_name))
-    soundex_match_first = int(jellyfish.soundex(username) == jellyfish.soundex(first_name))
-    metaphone_match_first = int(jellyfish.metaphone(username) == jellyfish.metaphone(first_name))
-    
-    
+    # Take the maximum of different string comparisons for each fuzzy type
     max_lev = max(lev_full, lev_first, lev_last)
     max_partial = max(partial_full, partial_first, partial_last)
-    max_token_set = max(token_set_full, token_set_first, token_set_last)
+    max_token_set = max(token_set_full, token_set_first, token_set_last) # Ensure this uses the correct variable
     
-    
+    # Composite score calculation with original weights and bonuses
     composite = (
         (max_lev * 0.4) +
         (max_partial * 0.3) +
         (max_token_set * 0.3) +
-        (soundex_match_last * 10) +
-        (metaphone_match_last * 10) +
-        (soundex_match_first * 5) +  
-        (metaphone_match_first * 5)+
+        (soundex_match_last * 10) +  # Reverted to original value
+        (metaphone_match_last * 10) + # Reverted to original value
+        (soundex_match_first * 5) +  # Reverted to original value
+        (metaphone_match_first * 5) + # Reverted to original value
         number_match_bonus
     )
-    return min(composite, 100) 
+    return min(composite, 100) # Cap the score at 100
 
 def fetch_employees(csv_file_buffer):
     
@@ -78,57 +82,59 @@ def fetch_employees(csv_file_buffer):
     }
 
     try:
-        
+        # Read the CSV from the buffer
         df = pd.read_csv(csv_file_buffer)
         df.columns = df.columns.str.lower() 
 
-        
+        # Rename columns to canonical names
         for canonical_name, aliases in CANONICAL_COLUMN_ALIASES.items():
             for alias in aliases:
                 if alias in df.columns and alias != canonical_name:
                     df.rename(columns={alias: canonical_name}, inplace=True)
-                    print(f"Renamed '{alias}' to '{canonical_name}'")
                     break 
                 elif canonical_name in df.columns:
                     break 
 
-        
-        
-        if 'employee_name' in df.columns and ('first_name' not in df.columns or 'last_name' not in df.columns):
-            print("Detected 'employee_name' column. Attempting to split into 'first_name' and 'last_name'.")
-            
+        # Handle employee_name, first_name, last_name consistency
+        # Ensure employee_name is created if not present or combine first/last if they are.
+        # Prioritize existing employee_name if it's the only one, then split.
+        # Otherwise, construct employee_name from first_name and last_name.
+
+        if 'employee_name' not in df.columns and ('first_name' in df.columns or 'last_name' in df.columns):
+            df['first_name'] = df['first_name'].fillna('').astype(str).str.strip()
+            df['last_name'] = df['last_name'].fillna('').astype(str).str.strip()
+            df['employee_name'] = df['first_name'] + ' ' + df['last_name']
+            df['employee_name'] = df['employee_name'].str.replace(r'\s+', ' ', regex=True).str.strip()
+        elif 'employee_name' in df.columns:
             df['employee_name'] = df['employee_name'].astype(str).str.strip()
-
-            
-            name_parts = df['employee_name'].str.split(n=1, expand=True) 
-
-            if len(name_parts.columns) > 0:
+            if 'first_name' not in df.columns and 'last_name' not in df.columns:
+                name_parts = df['employee_name'].str.split(n=1, expand=True) 
                 df['first_name'] = name_parts[0].fillna('').str.strip()
                 if len(name_parts.columns) > 1:
                     df['last_name'] = name_parts[1].fillna('').str.strip()
                 else:
-                    df['last_name'] = '' 
-                print("Successfully split 'employee_name' into 'first_name' and 'last_name'.")
-            else:
-                df['first_name'] = ''
-                df['last_name'] = ''
-                print("Warning: Could not split 'employee_name' into 'first_name' and 'last_name'. They will be empty.")
+                    df['last_name'] = ''
+            elif 'first_name' in df.columns and 'last_name' in df.columns:
+                # If all three exist, ensure first_name and last_name are processed and then employee_name is consistent
+                df['first_name'] = df['first_name'].fillna('').astype(str).str.strip()
+                df['last_name'] = df['last_name'].fillna('').astype(str).str.strip()
+                df['employee_name'] = df['first_name'] + ' ' + df['last_name']
+                df['employee_name'] = df['employee_name'].str.replace(r'\s+', ' ', regex=True).str.strip()
 
-        
-        required_processing_columns = ['emp_id', 'first_name', 'last_name']
+
+        # Ensure required columns are present after all processing
+        required_processing_columns = ['emp_id', 'first_name', 'last_name', 'employee_name'] 
         if not all(col in df.columns for col in required_processing_columns):
             missing_cols = [col for col in required_processing_columns if col not in df.columns]
             flash(f"Error: Employee data CSV is missing required columns: {', '.join(missing_cols)}. Please ensure it has 'emp_id', 'first_name', 'last_name' or their aliases, or a 'full name' equivalent.", "error")
             return pd.DataFrame(columns=['emp_id', 'employee_name', 'first_name', 'last_name'])
 
-       
+        # Final cleaning and type conversion for consistency
+        df['emp_id'] = df['emp_id'].astype(str).str.strip() 
         df['first_name'] = df['first_name'].fillna('').astype(str).str.strip()
         df['last_name'] = df['last_name'].fillna('').astype(str).str.strip()
+        df['employee_name'] = df['employee_name'].fillna('').astype(str).str.strip()
 
-       
-        df['employee_name'] = df['first_name'] + ' ' + df['last_name']
-        
-        df['employee_name'] = df['employee_name'].str.replace(r'\s+', ' ', regex=True).str.strip()
 
         return df[['emp_id', 'employee_name', 'first_name', 'last_name']]
 
@@ -137,7 +143,7 @@ def fetch_employees(csv_file_buffer):
         print("Error: The CSV file is empty.")
     except Exception as e:
         flash(f"An unexpected error occurred while processing the Employee Data CSV: {e}", "error")
-        print(f"An unexpected error occurred: {e}")
+        print(f"An unexpected error occurred while processing employee data: {e}")
 
     return pd.DataFrame(columns=['emp_id', 'employee_name', 'first_name', 'last_name'])
 
@@ -147,7 +153,6 @@ def index():
         employee_csv_file = request.files.get('employee_csv_file')
         usernames_csv_file = request.files.get('usernames_csv_file')
 
-        
         if not employee_csv_file or employee_csv_file.filename == '':
             flash("Error: Please upload the Employee Data CSV.", "error")
             return redirect(url_for('index'))
@@ -155,7 +160,6 @@ def index():
             flash("Error: Employee Data file must be a CSV.", "error")
             return redirect(url_for('index'))
 
-        
         if not usernames_csv_file or usernames_csv_file.filename == '':
             flash("Error: Please upload the Usernames CSV for matching.", "error")
             return redirect(url_for('index'))
@@ -163,13 +167,10 @@ def index():
             flash("Error: Usernames file must be a CSV.", "error")
             return redirect(url_for('index'))
 
-        
         employees_df = fetch_employees(employee_csv_file)
         if employees_df.empty:
-            
             return redirect(url_for('index'))
 
-        
         try:
             usernames_df = pd.read_csv(usernames_csv_file)
             usernames_df.columns = usernames_df.columns.str.lower() 
@@ -177,7 +178,6 @@ def index():
                 flash("Error: The Usernames CSV must contain a column named 'username'.", "error")
                 return redirect(url_for('index'))
             
-           
             input_usernames = usernames_df['username'].astype(str).tolist()
         except pd.errors.EmptyDataError:
             flash("Error: The Usernames CSV file is empty.", "error")
@@ -192,9 +192,8 @@ def index():
             flash("No employee data or usernames to process. Please check your uploaded files.", "warning")
             return redirect(url_for('index'))
 
-        
-        for input_username in input_usernames:
-            
+        for i, input_username in enumerate(input_usernames):
+            # Compute scores for the current username against all employees
             employees_df['current_score'] = employees_df.apply(
                 lambda row: compute_match_score(
                     input_username,
@@ -205,67 +204,65 @@ def index():
                 ), axis=1
             )
             
+            # Sort matches by score in descending order
+            sorted_matches = employees_df.sort_values('current_score', ascending=False).copy() 
             
-            sorted_matches = employees_df.sort_values('current_score', ascending=False)
-            
-            
+            # Filter for relevant matches (score > 0)
             relevant_matches = sorted_matches[sorted_matches['current_score'] > 0]
 
-           
-            top_match_found_for_username = False
-
-        
+            top_match_added_for_username = False
+            
             if not relevant_matches.empty:
                 best_overall_match = relevant_matches.iloc[0]
                 
                 if best_overall_match['current_score'] >= TOP_MATCH_THRESHOLD:
-                    
+                    # Add the top match to the results
                     final_output_rows.append({
                         'username': input_username,
                         'emp_id': best_overall_match['emp_id'],
                         'emp_name': best_overall_match['employee_name'],
-                        'confidence_score': f"{best_overall_match['current_score']:.2f}%"
+                        'confidence_score': f"{best_overall_match['current_score']:.2f}%",
+                        'match_type': 'Top Match'
                     })
-                    top_match_found_for_username = True
+                    top_match_added_for_username = True
+                    # Exclude the top match from "other matches" to avoid duplication
                     matches_for_others = relevant_matches[relevant_matches['emp_id'] != best_overall_match['emp_id']]
                 else:
+                    # If best match is below threshold, it will be included in "other matches"
                     matches_for_others = relevant_matches
             else:
+                # No matches found for this username with score > 0
                 final_output_rows.append({
                     'username': input_username,
                     'emp_id': 'N/A',
                     'emp_name': 'N/A',
-                    'confidence_score': '0.00%'
+                    'confidence_score': '0.00%',
+                    'match_type': 'No Match'
                 })
-                matches_for_others = pd.DataFrame() 
-            if not top_match_found_for_username and not matches_for_others.empty:
+                matches_for_others = pd.DataFrame() # Empty DataFrame for no matches
 
-                for rank_idx, (_, match_row) in enumerate(matches_for_others.head(NUM_OTHER_MATCHES + 1).iterrows()): 
-                    final_output_rows.append({
-                        'username': input_username,
-                        'emp_id': match_row['emp_id'],
-                        'emp_name': match_row['employee_name'],
-                        'confidence_score': f"{match_row['current_score']:.2f}%"
-                    })
-            elif top_match_found_for_username and not matches_for_others.empty:
+            # Add other relevant matches if available
+            if not matches_for_others.empty:
+                # Limit to NUM_OTHER_MATCHES
                 for rank_idx, (_, match_row) in enumerate(matches_for_others.head(NUM_OTHER_MATCHES).iterrows()):
                     final_output_rows.append({
                         'username': input_username,
                         'emp_id': match_row['emp_id'],
                         'emp_name': match_row['employee_name'],
-                        'confidence_score': f"{match_row['current_score']:.2f}%"
+                        'confidence_score': f"{match_row['current_score']:.2f}%",
+                        'match_type': f'Other Match {rank_idx + 1}'
                     })
             
-            
-            if len(final_output_rows) > 0 and input_username == final_output_rows[-1]['username']:
-                
-                if final_output_rows[-1]['username'] != input_usernames[0] or len(input_usernames) > 1:
-                     final_output_rows.append({
-                        'username': '',
-                        'emp_id': '',
-                        'emp_name': '', 
-                        'confidence_score': ''
-                    })
+            # Add a separator row between usernames for better readability in the CSV
+            # Only add if it's not the last username
+            if i < len(input_usernames) - 1:
+                final_output_rows.append({
+                    'username': '',
+                    'emp_id': '',
+                    'emp_name': '', 
+                    'confidence_score': '',
+                    'match_type': '---' # Separator indicator
+                })
 
         if not final_output_rows:
             flash("No matches could be processed. Please check your CSV files and data.", "warning")
@@ -273,15 +270,8 @@ def index():
 
         results_df = pd.DataFrame(final_output_rows)
 
-        results_df['temp_score'] = results_df['confidence_score'].str.replace('%', '')
-        results_df['temp_score'] = pd.to_numeric(results_df['temp_score'], errors='coerce')
-        results_df['temp_score'] = results_df['temp_score'].fillna(-1.0) 
-
-        results_df['temp_username_sort'] = results_df['username'].apply(lambda x: x if x else '~') 
-
-        results_df = results_df.sort_values(by=['temp_username_sort', 'temp_score'], ascending=[True, False])
-        
-        results_df = results_df.drop(columns=['temp_score', 'temp_username_sort'])
+        # The DataFrame is already ordered correctly by username and then by score within each username,
+        # with separators added sequentially.
 
         output_buffer = io.StringIO()
         results_df.to_csv(output_buffer, index=False)
@@ -291,7 +281,7 @@ def index():
             io.BytesIO(output_buffer.getvalue().encode('utf-8')), 
             mimetype='text/csv',
             as_attachment=True,
-            download_name='username_matches_simplified.csv' 
+            download_name='username_matches.csv' 
         )
 
     return render_template('index.html')
@@ -300,4 +290,3 @@ if __name__ == '__main__':
     if not os.path.exists('uploads'):
         os.makedirs('uploads')
     app.run(debug=True)
-
