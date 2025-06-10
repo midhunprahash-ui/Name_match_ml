@@ -18,11 +18,16 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 
 
 
-NUM_OTHER_MATCHES = 10
+# Define the number of top group matches and additional possible matches
+NUM_TOP_GROUP_MATCHES = 5
+NUM_ADDITIONAL_POSSIBLE_MATCHES = 10
+# The total number of matches to display for each username (5 + 10 = 15)
+TOTAL_MATCHES_TO_DISPLAY = NUM_TOP_GROUP_MATCHES + NUM_ADDITIONAL_POSSIBLE_MATCHES
+
 TOP_MATCH_THRESHOLD = 65
 
 def compute_match_score(username, employee_name, first_name, last_name, emp_id):
-
+    # Ensure all strings are treated consistently (e.g., lowercased) for robust matching
     username_lower = str(username).lower()
     employee_name_lower = str(employee_name).lower()
     first_name_lower = str(first_name).lower()
@@ -33,7 +38,7 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     if numbers_in_username:
         # Check if any number from username matches part of emp_id
         if str(emp_id).lower() in numbers_in_username: # Ensure emp_id is string and lower for consistent comparison
-            number_match_bonus = 10 # Reverted to original value
+            number_match_bonus = 10 
     
     # Fuzzy string matching scores (0-100) using lowercased inputs
     lev_full = fuzz.ratio(username_lower, employee_name_lower)
@@ -46,7 +51,7 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     
     lev_last = fuzz.ratio(username_lower, last_name_lower)
     partial_last = fuzz.partial_ratio(username_lower, last_name_lower)
-    token_set_last = fuzz.token_set_ratio(username_lower, last_name_lower) # Corrected variable name from 'token_last'
+    token_set_last = fuzz.token_set_ratio(username_lower, last_name_lower) 
     
     # Phonetic matching (0 or 1, then scaled) using lowercased inputs
     soundex_match_last = int(jellyfish.soundex(username_lower) == jellyfish.soundex(last_name_lower))
@@ -57,20 +62,20 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     # Take the maximum of different string comparisons for each fuzzy type
     max_lev = max(lev_full, lev_first, lev_last)
     max_partial = max(partial_full, partial_first, partial_last)
-    max_token_set = max(token_set_full, token_set_first, token_set_last) # Ensure this uses the correct variable
+    max_token_set = max(token_set_full, token_set_first, token_set_last) 
     
-
+    # Composite score calculation with original weights and bonuses
     composite = (
         (max_lev * 0.4) +
         (max_partial * 0.3) +
         (max_token_set * 0.3) +
-        (soundex_match_last * 10) + 
+        (soundex_match_last * 10) +  
         (metaphone_match_last * 10) +
         (soundex_match_first * 5) +  
         (metaphone_match_first * 5) + 
         number_match_bonus
     )
-    return min(composite, 100) 
+    return min(composite, 100) # Cap the score at 100
 
 def fetch_employees(csv_file_buffer):
     
@@ -207,30 +212,10 @@ def index():
             # Sort matches by score in descending order
             sorted_matches = employees_df.sort_values('current_score', ascending=False).copy() 
             
-            # Filter for relevant matches (score > 0)
-            relevant_matches = sorted_matches[sorted_matches['current_score'] > 0]
+            # Get up to TOTAL_MATCHES_TO_DISPLAY (15) relevant matches (score > 0)
+            matches_to_add = sorted_matches[sorted_matches['current_score'] > 0].head(TOTAL_MATCHES_TO_DISPLAY)
 
-            top_match_added_for_username = False
-            
-            if not relevant_matches.empty:
-                best_overall_match = relevant_matches.iloc[0]
-                
-                if best_overall_match['current_score'] >= TOP_MATCH_THRESHOLD:
-                    # Add the top match to the results
-                    final_output_rows.append({
-                        'username': input_username,
-                        'emp_id': best_overall_match['emp_id'],
-                        'emp_name': best_overall_match['employee_name'],
-                        'confidence_score': f"{best_overall_match['current_score']:.2f}%",
-                        'match_type': 'Top Match'
-                    })
-                    top_match_added_for_username = True
-                    # Exclude the top match from "other matches" to avoid duplication
-                    matches_for_others = relevant_matches[relevant_matches['emp_id'] != best_overall_match['emp_id']]
-                else:
-                    # If best match is below threshold, it will be included in "other matches"
-                    matches_for_others = relevant_matches
-            else:
+            if matches_to_add.empty:
                 # No matches found for this username with score > 0
                 final_output_rows.append({
                     'username': input_username,
@@ -239,18 +224,28 @@ def index():
                     'confidence_score': '0.00%',
                     'match_type': 'No Match'
                 })
-                matches_for_others = pd.DataFrame() # Empty DataFrame for no matches
+            else:
+                for rank_idx, (_, match_row) in enumerate(matches_to_add.iterrows()):
+                    match_type = ''
+                    if rank_idx == 0:
+                        # The very best match
+                        if match_row['current_score'] >= TOP_MATCH_THRESHOLD:
+                            match_type = 'Top Match'
+                        else:
+                            match_type = 'Best Match (Below Threshold)'
+                    elif rank_idx < NUM_TOP_GROUP_MATCHES:
+                        # The remaining matches within the "top 5" group
+                        match_type = 'Top Match'
+                    else:
+                        # The matches within the "other 10 possible matches" group
+                        match_type = f'Other Possible Match {rank_idx - NUM_TOP_GROUP_MATCHES + 1}'
 
-            # Add other relevant matches if available
-            if not matches_for_others.empty:
-                # Limit to NUM_OTHER_MATCHES
-                for rank_idx, (_, match_row) in enumerate(matches_for_others.head(NUM_OTHER_MATCHES).iterrows()):
                     final_output_rows.append({
                         'username': input_username,
                         'emp_id': match_row['emp_id'],
                         'emp_name': match_row['employee_name'],
                         'confidence_score': f"{match_row['current_score']:.2f}%",
-                        'match_type': f'Other Match {rank_idx + 1}'
+                        'match_type': match_type
                     })
             
             # Add a separator row between usernames for better readability in the CSV
