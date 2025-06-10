@@ -3,40 +3,124 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Username Matcher</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch Employee Name Matcher</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for a cleaner look */
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Using Inter font for a modern feel */
+            background-color: #f3f4f6;
+            /* Light gray background */
+        }
+
+        .container {
+            max-width: 900px;
+            /* Max width for the main content area */
+            margin: 2rem auto;
+            /* Center the container with vertical margin */
+            padding: 1.5rem;
+            /* Padding inside the container */
+            background-color: #ffffff;
+            /* White background for the card */
+            border-radius: 12px;
+            /* Rounded corners for the container */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            /* Soft shadow for depth */
+        }
+
+        /* Styling for flash messages (success, error, warning, info) */
+        .flash-message {
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .flash-success {
+            background-color: #d1fae5;
+            /* Green light */
+            color: #065f46;
+            /* Green dark */
+            border: 1px solid #6ee7b7;
+        }
+
+        .flash-error {
+            background-color: #fee2e2;
+            /* Red light */
+            color: #991b1b;
+            /* Red dark */
+            border: 1px solid #fca5a5;
+        }
+
+        .flash-warning {
+            background-color: #fffbeb;
+            /* Yellow light */
+            color: #92400e;
+            /* Yellow dark */
+            border: 1px solid #fcd34d;
+        }
+
+        .flash-info {
+            background-color: #e0f2fe;
+            /* Blue light */
+            color: #0369a1;
+            /* Blue dark */
+            border: 1px solid #7dd3fc;
+        }
+    </style>
 </head>
 
-<body>
-    <h1>Username Finder</h1>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="container">
+        <h1 class="text-3xl font-extrabold text-gray-900 text-center mb-6">Batch Employee Name Matcher</h1>
 
-    <form method="POST">
-        <input type="text" name="username" placeholder="Enter username" value="{{ input_username }}">
-        <button type="submit">Search</button>
-    </form>
+        <!-- Section to display flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="mb-6">
+            {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
 
-    {% if matches %}
-    <h2>Top Matches : </h2>
-    <ul>
-        {% for match in matches %}
-        <li>
-            {{ match.employee_name }} (ID: {{ match.emp_id }}) - Confidence : {{ match.score | round(2) }} %
-        </li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p>No matches Found !</p>
-    {% endif %}
+        <!-- Form for CSV file uploads -->
+        <form method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <div class="mb-4">
+                <label for="employee_csv_file" class="block text-gray-700 text-sm font-bold mb-2">Upload Employee Data
+                    CSV:</label>
+                <input type="file" name="employee_csv_file" id="employee_csv_file" accept=".csv"
+                    class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <p class="text-xs text-gray-500 mt-1">This CSV should contain your employee records (e.g., 'emp_id',
+                    'first_name', 'last_name').</p>
+            </div>
+            <div class="mb-6">
+                <label for="usernames_csv_file" class="block text-gray-700 text-sm font-bold mb-2">Upload Usernames
+                    CSV:</label>
+                <input type="file" name="usernames_csv_file" id="usernames_csv_file" accept=".csv"
+                    class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <p class="text-xs text-gray-500 mt-1">This CSV must contain a column named 'username' with the usernames
+                    you want to match.</p>
+            </div>
+            <div class="flex items-center justify-between">
+                <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-200 ease-in-out transform hover:scale-105">
+                    Process & Download Matches
+                </button>
+            </div>
+        </form>
 
-    {% if top_matches %}
-    <h2>Possible Other 5 Matches : </h2>
-    <ul>
-        {% for match in top_matches %}
-        <li>
-            {{ match.employee_name }} (ID: {{ match.emp_id }}) - Confidence : {{ match.score | round(2) }} %
-        </li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+        <p class="text-center text-gray-600 mt-8 mb-4">
+            Upload both CSV files above. The system will process the usernames against your employee data and provide a
+            downloadable CSV with the best matches.
+        </p>
+    </div>
 </body>
 
 </html>
