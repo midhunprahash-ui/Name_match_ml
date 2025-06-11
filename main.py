@@ -17,9 +17,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 NUM_TOP_GROUP_MATCHES = 4
 NUM_ADDITIONAL_POSSIBLE_MATCHES = 2
-
 TOTAL_MATCHES_TO_DISPLAY = NUM_TOP_GROUP_MATCHES + NUM_ADDITIONAL_POSSIBLE_MATCHES
-
 TOP_MATCH_THRESHOLD = 75
 
 def compute_match_score(username, employee_name, first_name, last_name, emp_id):
@@ -28,6 +26,12 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     employee_name_lower = str(employee_name).lower().strip()
     first_name_lower = str(first_name).lower().strip()
     last_name_lower = str(last_name).lower().strip()
+
+    numbers_in_username = re.findall(r'\d+', username_lower)
+    number_match_bonus = 0
+    if numbers_in_username:
+        if str(emp_id).lower() in numbers_in_username:
+            number_match_bonus = 20
 
 
     if first_name_lower and last_name_lower:
@@ -64,11 +68,7 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
                     return 100.0
 
     
-    numbers_in_username = re.findall(r'\d+', username_lower)
-    number_match_bonus = 0
-    if numbers_in_username:
-        if str(emp_id).lower() in numbers_in_username:
-            number_match_bonus = 10
+    
 
     lev_full = fuzz.ratio(username_lower, employee_name_lower)
     partial_full = fuzz.partial_ratio(username_lower, employee_name_lower)
