@@ -55,7 +55,7 @@ def compute_fuzzy_score(username, employee_name, first_name, last_name, emp_id):
     number_match_bonus = 0
     if numbers_in_username:
         if str(emp_id).lower() in numbers_in_username:
-            number_match_bonus = 10
+            number_match_bonus = 20
 
     lev_full = fuzz.ratio(username_lower, employee_name_lower)
     partial_full = fuzz.partial_ratio(username_lower, employee_name_lower)
