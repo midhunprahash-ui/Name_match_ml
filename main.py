@@ -26,7 +26,7 @@ TOP_MATCH_THRESHOLD = 65
 # If top scores are within this percentage point difference, ML is invoked.
 SCORE_SIMILARITY_THRESHOLD = 1.0 # e.g., if scores are 88.4% and 87.5%, difference is 0.9%, within 2.0%
 
-# --- ML Model Loading ---
+
 ML_MODEL_PATH = 'fuzzy_match_model.joblib'
 FEATURE_COLUMNS_PATH = 'feature_columns.joblib'
 ml_model = None
