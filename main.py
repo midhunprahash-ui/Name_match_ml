@@ -20,7 +20,7 @@ NUM_ADDITIONAL_POSSIBLE_MATCHES = 2
 
 TOTAL_MATCHES_TO_DISPLAY = NUM_TOP_GROUP_MATCHES + NUM_ADDITIONAL_POSSIBLE_MATCHES
 
-TOP_MATCH_THRESHOLD = 65
+TOP_MATCH_THRESHOLD = 75
 
 def compute_match_score(username, employee_name, first_name, last_name, emp_id):
    
@@ -56,13 +56,19 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
         if username_lower == f"{last_name_lower} {first_name_lower}":
             return 100.0
 
+        if len(username_lower) > 0 and len(last_name_lower) > 0:
+            if username_lower[-1] == last_name_lower[0]:
+                
+                partial_ratio_with_last = fuzz.partial_ratio(username_lower, last_name_lower)
+                if partial_ratio_with_last >= 90: 
+                    return 100.0
 
     
     numbers_in_username = re.findall(r'\d+', username_lower)
     number_match_bonus = 0
     if numbers_in_username:
         if str(emp_id).lower() in numbers_in_username:
-            number_match_bonus = 5
+            number_match_bonus = 10
 
     lev_full = fuzz.ratio(username_lower, employee_name_lower)
     partial_full = fuzz.partial_ratio(username_lower, employee_name_lower)
@@ -114,8 +120,8 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     
     composite = (
         (max_lev * 0.3) +           
-        (max_partial * 0.25) +       
-        (max_token_set * 0.25) +     
+        (max_partial * 0.3) +       
+        (max_token_set * 0.3) +     
         (soundex_match_last * 5) +  
         (metaphone_match_last * 5) + 
         (soundex_match_first * 2) +  
@@ -269,13 +275,13 @@ def index():
                         if match_row['current_score'] >= TOP_MATCH_THRESHOLD:
                             match_type = 'Top Match'
                         else:
-                            match_type = 'Best Match (Below Threshold)'
+                            match_type = 'Best Match'
                     elif rank_idx < NUM_TOP_GROUP_MATCHES:
 
                         match_type = f'Top Match'
                     else:
 
-                        match_type = f'Other Possible Match {rank_idx - NUM_TOP_GROUP_MATCHES + 1}'
+                        match_type = f'Other Possible Match'
 
                     final_output_rows.append({
                         'username': input_username,
