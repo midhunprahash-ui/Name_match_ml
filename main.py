@@ -117,12 +117,12 @@ def compute_fuzzy_score(username, employee_name, first_name, last_name, emp_id):
     # Increase the weighting for direct name part matches and phonetic matches
     composite = (
         (max_fuzz * 0.4) +           # Overall string similarity
-        (avg_first_match * 0.2) +    # First name part match
-        (avg_last_match * 0.2) +     # Last name part match
+        (avg_first_match * 0.3) +    # First name part match
+        (avg_last_match * 0.3) +     # Last name part match
         (soundex_match_last * 8) +   # Strong bonus for last name phonetic match
         (metaphone_match_last * 8) + # Strong bonus for last name phonetic match
-        (soundex_match_first * 4) +  # Moderate bonus for first name phonetic match
-        (metaphone_match_first * 4) + # Moderate bonus for first name phonetic match
+        (soundex_match_first * 5) +  # Moderate bonus for first name phonetic match
+        (metaphone_match_first * 5) + # Moderate bonus for first name phonetic match
         number_match_bonus           # Bonus for ID match
     )
     
