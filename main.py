@@ -27,14 +27,11 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     first_name_lower = str(first_name).lower().strip()
     last_name_lower = str(last_name).lower().strip()
 
-    numbers_in_username = re.findall(r'\d+', username_lower)
-    number_match_bonus = 0
-    if numbers_in_username:
-        if str(emp_id).lower() in numbers_in_username:
-            number_match_bonus = 20
+    
 
 
     if first_name_lower and last_name_lower:
+        
       
         if username_lower == f"{first_name_lower}.{last_name_lower}":
             return 100.0
@@ -42,11 +39,21 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
         if username_lower == f"{last_name_lower}.{first_name_lower}":
             return 100.0
         
+        if username_lower == f"{first_name_lower}.{last_name_lower[:2]}":
+            return 100.0
+        
+        if username_lower == f"{last_name_lower}.{first_name_lower[:2]}":
+            return 100.0
+        
+        if username_lower == f"{first_name_lower}{last_name_lower[:2]}":
+            return 100.0
+        
         if len(first_name_lower) > 0 and username_lower == f"{first_name_lower[0]}.{last_name_lower}":
             return 100.0
         
         if len(last_name_lower) > 0 and username_lower == f"{first_name_lower}.{last_name_lower[0]}":
             return 100.0
+        
         
         if username_lower == f"{first_name_lower}{last_name_lower}":
             return 100.0
@@ -60,15 +67,13 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
         if username_lower == f"{last_name_lower} {first_name_lower}":
             return 100.0
 
-        if len(username_lower) > 0 and len(last_name_lower) > 0:
-            if username_lower[-1] == last_name_lower[0]:
-                
-                partial_ratio_with_last = fuzz.partial_ratio(username_lower, last_name_lower)
-                if partial_ratio_with_last >= 90: 
-                    return 100.0
-
+       
     
-    
+    numbers_in_username = re.findall(r'\d+', username_lower)
+    number_match_bonus = 0
+    if numbers_in_username:
+        if str(emp_id).lower() in numbers_in_username:
+            number_match_bonus = 20
 
     lev_full = fuzz.ratio(username_lower, employee_name_lower)
     partial_full = fuzz.partial_ratio(username_lower, employee_name_lower)
