@@ -17,14 +17,15 @@ if not os.path.exists(UPLOAD_FOLDER):
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 
 
-# Main values
 
-NUM_TOP_GROUP_MATCHES = 5
-NUM_ADDITIONAL_POSSIBLE_MATCHES = 10
+
+NUM_TOP_GROUP_MATCHES = 3
+NUM_ADDITIONAL_POSSIBLE_MATCHES = 5
 
 TOTAL_MATCHES_TO_DISPLAY = NUM_TOP_GROUP_MATCHES + NUM_ADDITIONAL_POSSIBLE_MATCHES
 
 TOP_MATCH_THRESHOLD = 65
+TIE_BREAK_THRESHOLD = 3 # If fuzzy scores are within this range, apply tie-breaking
 
 def compute_match_score(username, employee_name, first_name, last_name, emp_id):
    
@@ -37,6 +38,7 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     number_match_bonus = 0
     if numbers_in_username:
         
+        # Check if any number in username matches emp_id
         if str(emp_id).lower() in numbers_in_username: 
             number_match_bonus = 10 
     
@@ -76,6 +78,60 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
         number_match_bonus
     )
     return min(composite, 100) 
+
+# New function for tie-breaking
+def compute_tie_break_score(username, employee_name, first_name, last_name):
+    username_lower = str(username).lower()
+    employee_name_lower = str(employee_name).lower()
+    first_name_lower = str(first_name).lower()
+    last_name_lower = str(last_name).lower()
+
+    score = 0
+
+    # Rule 1: Prioritize exact matches of parts of the name
+    if username_lower == first_name_lower:
+        score += 20
+    if username_lower == last_name_lower:
+        score += 20
+    if username_lower == employee_name_lower.replace(" ", ""): # e.g., 'johndoe' vs 'john doe'
+        score += 25
+
+    # Rule 2: Check for initials
+    first_initial = first_name_lower[0] if first_name_lower else ''
+    last_initial = last_name_lower[0] if last_name_lower else ''
+    
+    if first_initial and last_initial:
+        if username_lower == f"{first_initial}{last_name_lower}": # e.g., jdoe
+            score += 15
+        if username_lower == f"{first_name_lower}{last_initial}": # e.g., johnD
+            score += 15
+        if username_lower == f"{first_initial}{last_initial}": # e.g., jd
+            score += 10
+            
+    # Rule 3: Substring matches (username as part of name, or vice versa)
+    if username_lower in first_name_lower or first_name_lower in username_lower:
+        score += 5
+    if username_lower in last_name_lower or last_name_lower in username_lower:
+        score += 5
+    
+    # Rule 4: Common words/character sequences
+    # This is where a more sophisticated ML model would shine, but we can do a simple heuristic
+    common_chars = sum(1 for char in set(username_lower) & set(employee_name_lower))
+    score += common_chars * 0.4 # Small bonus for shared characters
+
+    # Rule 5: Length difference - penalize very large differences
+    len_diff_first = abs(len(username_lower) - len(first_name_lower))
+    len_diff_last = abs(len(username_lower) - len(last_name_lower))
+    len_diff_full = abs(len(username_lower) - len(employee_name_lower.replace(" ", "")))
+
+    min_len_diff = min(len_diff_first, len_diff_last, len_diff_full)
+    if min_len_diff <= 2: # Small length difference
+        score += 5
+    elif min_len_diff > 5: # Large length difference
+        score -= 5
+
+    return score
+
 
 def fetch_employees(csv_file_buffer):
     
@@ -206,8 +262,45 @@ def index():
                 ), axis=1
             )
             
-            sorted_matches = employees_df.sort_values('current_score', ascending=False).copy() 
+            # Sort by the primary fuzzy score
+            sorted_by_fuzzy = employees_df.sort_values('current_score', ascending=False)
             
+            # Identify potential ties at the top
+            if not sorted_by_fuzzy.empty:
+                top_score = sorted_by_fuzzy.iloc[0]['current_score']
+                potential_ties = sorted_by_fuzzy[
+                    (sorted_by_fuzzy['current_score'] >= top_score - TIE_BREAK_THRESHOLD) &
+                    (sorted_by_fuzzy['current_score'] <= top_score + TIE_BREAK_THRESHOLD)
+                ].copy()
+
+                if len(potential_ties) > 1:
+                    # Apply tie-breaking logic only to the potential ties
+                    potential_ties['tie_break_score'] = potential_ties.apply(
+                        lambda row: compute_tie_break_score(
+                            input_username,
+                            row['employee_name'],
+                            row['first_name'],
+                            row['last_name']
+                        ), axis=1
+                    )
+                    
+                    # Re-sort the potential ties based on the tie-break score
+                    potential_ties = potential_ties.sort_values(
+                        ['current_score', 'tie_break_score'], 
+                        ascending=[False, False]
+                    )
+                    
+                    # Merge the re-sorted potential ties back into the main sorted_matches
+                    # This ensures the order of the top matches is correct
+                    non_ties = sorted_by_fuzzy[
+                        ~sorted_by_fuzzy.index.isin(potential_ties.index)
+                    ]
+                    sorted_matches = pd.concat([potential_ties, non_ties]).drop_duplicates().reset_index(drop=True)
+                else:
+                    sorted_matches = sorted_by_fuzzy.copy() # No tie to break
+            else:
+                sorted_matches = employees_df.copy()
+
             
             matches_to_add = sorted_matches[sorted_matches['current_score'] > 0].head(TOTAL_MATCHES_TO_DISPLAY)
 
