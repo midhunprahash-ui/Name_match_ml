@@ -17,7 +17,7 @@ if not os.path.exists(UPLOAD_FOLDER):
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 
 
-
+# Main values
 
 NUM_TOP_GROUP_MATCHES = 5
 NUM_ADDITIONAL_POSSIBLE_MATCHES = 10
