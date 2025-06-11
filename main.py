@@ -4,30 +4,48 @@ from thefuzz import fuzz
 import jellyfish
 import re
 import os
-import io 
-
+import io
+import joblib # Import joblib to load the model
+import numpy as np # For numerical operations, especially with thresholds
 
 app = Flask(__name__)
-app.secret_key = 'your_super_secret_key_here' 
-
+app.secret_key = 'your_super_secret_key_here'
 
 UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024 
-
-
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 NUM_TOP_GROUP_MATCHES = 5
 NUM_ADDITIONAL_POSSIBLE_MATCHES = 10
-
 TOTAL_MATCHES_TO_DISPLAY = NUM_TOP_GROUP_MATCHES + NUM_ADDITIONAL_POSSIBLE_MATCHES
+TOP_MATCH_THRESHOLD = 65
 
-TOP_MATCH_THRESHOLD = 80
+# Define a threshold for considering scores "similar" for ML tie-breaking
+# If top scores are within this percentage point difference, ML is invoked.
+SCORE_SIMILARITY_THRESHOLD = 2.0 # e.g., if scores are 88.4% and 87.5%, difference is 0.9%, within 2.0%
 
-def compute_match_score(username, employee_name, first_name, last_name, emp_id):
-   
+# --- ML Model Loading ---
+ML_MODEL_PATH = 'fuzzy_match_model.joblib'
+FEATURE_COLUMNS_PATH = 'feature_columns.joblib'
+ml_model = None
+feature_columns = None
+
+try:
+    ml_model = joblib.load(ML_MODEL_PATH)
+    feature_columns = joblib.load(FEATURE_COLUMNS_PATH)
+    print("ML model loaded successfully.")
+except FileNotFoundError:
+    print(f"Warning: ML model files ({ML_MODEL_PATH}, {FEATURE_COLUMNS_PATH}) not found.")
+    print("Please run train_model.py first to train and save the model if you want ML tie-breaking.")
+    ml_model = None # Ensure model is None if loading fails
+except Exception as e:
+    print(f"Error loading ML model: {e}")
+    ml_model = None
+
+# --- ORIGINAL FUZZY SCORE CALCULATION (renamed for clarity) ---
+def compute_fuzzy_score(username, employee_name, first_name, last_name, emp_id):
     username_lower = str(username).lower()
     employee_name_lower = str(employee_name).lower()
     first_name_lower = str(first_name).lower()
@@ -36,118 +54,210 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     numbers_in_username = re.findall(r'\d+', username_lower)
     number_match_bonus = 0
     if numbers_in_username:
-        
-        if str(emp_id).lower() in numbers_in_username: 
-            number_match_bonus = 10 
-    
-    
+        if str(emp_id).lower() in numbers_in_username:
+            number_match_bonus = 10
+
     lev_full = fuzz.ratio(username_lower, employee_name_lower)
     partial_full = fuzz.partial_ratio(username_lower, employee_name_lower)
     token_set_full = fuzz.token_set_ratio(username_lower, employee_name_lower)
     
-    lev_first = fuzz.ratio(username_lower, first_name_lower)
-    partial_first = fuzz.partial_ratio(username_lower, first_name_lower)
-    token_set_first = fuzz.token_set_ratio(username_lower, first_name_lower)
-    
-    lev_last = fuzz.ratio(username_lower, last_name_lower)
-    partial_last = fuzz.partial_ratio(username_lower, last_name_lower)
-    token_set_last = fuzz.token_set_ratio(username_lower, last_name_lower) 
-    
-    
-    soundex_match_last = int(jellyfish.soundex(username_lower) == jellyfish.soundex(last_name_lower))
-    metaphone_match_last = int(jellyfish.metaphone(username_lower) == jellyfish.metaphone(last_name_lower))
-    soundex_match_first = int(jellyfish.soundex(username_lower) == jellyfish.soundex(first_name_lower))
-    metaphone_match_first = int(jellyfish.metaphone(username_lower) == jellyfish.metaphone(first_name_lower))
-    
-    
-    max_lev = max(lev_full, lev_first, lev_last)
-    max_partial = max(partial_full, partial_first, partial_last)
-    max_token_set = max(token_set_full, token_set_first, token_set_last) 
-    
-   
-    composite = (
-        (max_lev * 0.4) +
-        (max_partial * 0.3) +
-        (max_token_set * 0.3) +
-        (soundex_match_last * 10) +  
-        (metaphone_match_last * 10) +
-        (soundex_match_first * 5) +  
-        (metaphone_match_first * 5) + 
-        number_match_bonus
-    )
-    return min(composite, 100) 
+    # Try to extract first and last name from username for more targeted comparison
+    username_parts = re.split(r'[._\s]', username_lower)
+    username_potential_first = ""
+    username_potential_last = ""
+    if len(username_parts) > 1:
+        # Assuming common patterns like first.last or last.first
+        username_potential_first = username_parts[-1] # For thakur.neha -> neha
+        username_potential_last = username_parts[0]   # For thakur.neha -> thakur
+    elif len(username_parts) == 1:
+        # If no separator, just use the whole username string for first/last potential
+        username_potential_first = username_parts[0]
+        username_potential_last = username_parts[0]
 
-def fetch_employees(csv_file_buffer):
+
+    # Compare against parts of employee name
+    # Prioritize comparison of username part to corresponding emp name part
+    score_first_name_match = max(
+        fuzz.ratio(username_potential_first, first_name_lower),
+        fuzz.partial_ratio(username_potential_first, first_name_lower),
+        fuzz.token_set_ratio(username_potential_first, first_name_lower)
+    )
+    score_last_name_match = max(
+        fuzz.ratio(username_potential_last, last_name_lower),
+        fuzz.partial_ratio(username_potential_last, last_name_lower),
+        fuzz.token_set_ratio(username_potential_last, last_name_lower)
+    )
     
-    CANONICAL_COLUMN_ALIASES = {
-        'emp_id': ['employee_id', 'employee id', 'id_employee', 'staff_id', 'emp id', 'empid', 'id', 'employee no', 'emp no'],
-        'first_name': ['first name', 'fname', 'given_name', 'first', 'f_name', 'name (first)', 'namefirst'],
-        'last_name': ['last name', 'lname', 'surname', 'family_name', 'l_name', 'name (last)', 'namelast'],
-        'employee_name': ['full name', 'fullname', 'emp_name', 'name of employee', 'name'] 
-    }
+    # Also consider if username parts match the *other* part of the employee name (e.g., if username is firstname.lastname, and employee name is lastname firstname)
+    score_cross_first_name_match = max(
+        fuzz.ratio(username_potential_first, last_name_lower),
+        fuzz.partial_ratio(username_potential_first, last_name_lower),
+        fuzz.token_set_ratio(username_potential_first, last_name_lower)
+    )
+    score_cross_last_name_match = max(
+        fuzz.ratio(username_potential_last, first_name_lower),
+        fuzz.partial_ratio(username_potential_last, first_name_lower),
+        fuzz.token_set_ratio(username_potential_last, first_name_lower)
+    )
+
+    # Use a weighted average of direct and cross matches for parts
+    avg_first_match = (score_first_name_match * 0.7 + score_cross_last_name_match * 0.3)
+    avg_last_match = (score_last_name_match * 0.7 + score_cross_first_name_match * 0.3)
+
+
+    # Maximize across the different types of fuzzy ratios for overall string comparison
+    max_fuzz = max(lev_full, partial_full, token_set_full)
+
+    # Additional phonetic checks
+    soundex_match_last = int(jellyfish.soundex(last_name_lower) == jellyfish.soundex(username_potential_last))
+    metaphone_match_last = int(jellyfish.metaphone(last_name_lower) == jellyfish.metaphone(username_potential_last))
+    soundex_match_first = int(jellyfish.soundex(username_potential_first) == jellyfish.soundex(first_name_lower))
+    metaphone_match_first = int(jellyfish.metaphone(username_potential_first) == jellyfish.metaphone(first_name_lower))
+    
+    # Increase the weighting for direct name part matches and phonetic matches
+    composite = (
+        (max_fuzz * 0.4) +           # Overall string similarity
+        (avg_first_match * 0.2) +    # First name part match
+        (avg_last_match * 0.2) +     # Last name part match
+        (soundex_match_last * 8) +   # Strong bonus for last name phonetic match
+        (metaphone_match_last * 8) + # Strong bonus for last name phonetic match
+        (soundex_match_first * 4) +  # Moderate bonus for first name phonetic match
+        (metaphone_match_first * 4) + # Moderate bonus for first name phonetic match
+        number_match_bonus           # Bonus for ID match
+    )
+    
+    return min(composite, 100) # Cap at 100
+
+# --- FEATURE GENERATION FOR ML (same as before) ---
+def generate_features(username, employee_name, first_name, last_name, emp_id):
+    username_lower = str(username).lower().strip()
+    employee_name_lower = str(employee_name).lower().strip()
+    first_name_lower = str(first_name).lower().strip()
+    last_name_lower = str(last_name).lower().strip()
+
+    username_cleaned = re.sub(r'[^a-z0-9]', '', username_lower)
+    username_no_dot = username_lower.replace('.', '')
+
+    features = {}
+
+    features['fuzz_ratio_full'] = fuzz.ratio(username_lower, employee_name_lower)
+    features['fuzz_partial_full'] = fuzz.partial_ratio(username_lower, employee_name_lower)
+    features['fuzz_token_sort_full'] = fuzz.token_sort_ratio(username_lower, employee_name_lower)
+    features['fuzz_token_set_full'] = fuzz.token_set_ratio(username_lower, employee_name_lower)
+
+    username_parts = re.split(r'[._\s]', username_lower)
+    username_potential_first = ""
+    username_potential_last = ""
+    if len(username_parts) > 1:
+        username_potential_first = username_parts[-1]
+        username_potential_last = username_parts[0]
+    elif len(username_parts) == 1:
+        username_potential_first = username_parts[0]
+        username_potential_last = username_parts[0]
+
+    features['fuzz_ratio_username_first_to_emp_first'] = fuzz.ratio(username_potential_first, first_name_lower)
+    features['fuzz_ratio_username_last_to_emp_last'] = fuzz.ratio(username_potential_last, last_name_lower)
+    features['fuzz_ratio_username_first_to_emp_last'] = fuzz.ratio(username_potential_first, last_name_lower)
+    features['fuzz_ratio_username_last_to_emp_first'] = fuzz.ratio(username_potential_last, first_name_lower)
+
+    features['fuzz_ratio_cleaned_username_to_emp_name_no_space'] = fuzz.ratio(username_cleaned, employee_name_lower.replace(' ', ''))
+    features['fuzz_token_set_cleaned_username_to_emp_name_no_space'] = fuzz.token_set_ratio(username_cleaned, employee_name_lower.replace(' ', ''))
+    features['fuzz_ratio_no_dot_username_to_emp_name_no_space'] = fuzz.ratio(username_no_dot, employee_name_lower.replace(' ', ''))
 
     try:
+        features['jelly_soundex_username_last'] = int(jellyfish.soundex(username_potential_last) == jellyfish.soundex(last_name_lower))
+        features['jelly_metaphone_username_last'] = int(jellyfish.metaphone(username_potential_last) == jellyfish.metaphone(last_name_lower))
+    except Exception:
+        features['jelly_soundex_username_last'] = 0
+        features['jelly_metaphone_username_last'] = 0
+
+    try:
+        features['jelly_soundex_username_first'] = int(jellyfish.soundex(username_potential_first) == jellyfish.soundex(first_name_lower))
+        features['jelly_metaphone_username_first'] = int(jellyfish.metaphone(username_potential_first) == jellyfish.metaphone(first_name_lower))
+    except Exception:
+        features['jelly_soundex_username_first'] = 0
+        features['jelly_metaphone_username_first'] = 0
+
+    try:
+        features['jelly_soundex_full'] = int(jellyfish.soundex(username_lower) == jellyfish.soundex(employee_name_lower))
+        features['jelly_metaphone_full'] = int(jellyfish.metaphone(username_lower) == jellyfish.metaphone(employee_name_lower))
+    except Exception:
+        features['jelly_soundex_full'] = 0
+        features['jelly_metaphone_full'] = 0
+
+    features['exact_match_username_to_emp_name'] = int(username_lower == employee_name_lower)
+    features['exact_match_username_no_dot_to_emp_name_no_space'] = int(username_no_dot == employee_name_lower.replace(' ', ''))
+    features['exact_match_first_name_in_username'] = int(first_name_lower in username_lower or username_lower in first_name_lower)
+    features['exact_match_last_name_in_username'] = int(last_name_lower in username_lower or username_lower in last_name_lower)
+
+    numbers_in_username = re.findall(r'\d+', username_lower)
+    features['id_match_bonus'] = int(str(emp_id).lower() in numbers_in_username)
+
+    features['len_diff_username_emp_name'] = abs(len(username_lower) - len(employee_name_lower))
+    features['len_ratio_username_emp_name'] = min(len(username_lower), len(employee_name_lower)) / (max(len(username_lower), len(employee_name_lower)) + 1e-6)
+
+    return features
+
+# --- ML REFINEMENT SCORE CALCULATION ---
+def compute_ml_refinement_score(username, employee_name, first_name, last_name, emp_id):
+    if ml_model is None or feature_columns is None:
+        # If ML model isn't loaded, return a neutral score or the original score for this tie-breaking step
+        return 0 # Or a fixed value to indicate it wasn't refined by ML
     
-        df = pd.read_csv(csv_file_buffer)
-        df.columns = df.columns.str.lower() 
+    features = generate_features(username, employee_name, first_name, last_name, emp_id)
+    feature_values = [features.get(col, 0) for col in feature_columns]
+    feature_df = pd.DataFrame([feature_values], columns=feature_columns)
+    
+    prediction_probability = ml_model.predict_proba(feature_df)[0][1] * 100
+    return prediction_probability
 
+# --- MODIFIED fetch_employees FUNCTION ---
+def fetch_employees(file):
+    # Core columns required for primary identification
+    core_required_columns = ['first_name', 'last_name', 'emp_id']
+    
+    try:
+        df = pd.read_csv(file)
+        # Standardize column names (lowercase and replace spaces with underscores)
+        df.columns = df.columns.str.lower().str.strip().str.replace(' ', '_')
         
-        for canonical_name, aliases in CANONICAL_COLUMN_ALIASES.items():
-            for alias in aliases:
-                if alias in df.columns and alias != canonical_name:
-                    df.rename(columns={alias: canonical_name}, inplace=True)
-                    break 
-                elif canonical_name in df.columns:
-                    break 
+        # Check for essential core columns first
+        missing_core_columns = [col for col in core_required_columns if col not in df.columns]
+        if missing_core_columns:
+            flash(f"Error: Employee Data CSV is missing essential columns: {', '.join(missing_core_columns)}. "
+                  "Please ensure it has 'first_name', 'last_name', and 'emp_id'.", "error")
+            return pd.DataFrame()
 
-        
+        # Ensure 'first_name', 'last_name', and 'emp_id' are treated as strings and handle NaNs
+        for col in ['first_name', 'last_name', 'emp_id']:
+            df[col] = df[col].fillna('').astype(str)
 
-        if 'employee_name' not in df.columns and ('first_name' in df.columns or 'last_name' in df.columns):
-            df['first_name'] = df['first_name'].fillna('').astype(str).str.strip()
-            df['last_name'] = df['last_name'].fillna('').astype(str).str.strip()
+        # Handle 'employee_name': Prefer existing, otherwise construct from first/last
+        if 'employee_name' not in df.columns:
+            print("Info: 'employee_name' column not found. Attempting to construct from 'first_name' and 'last_name'.")
             df['employee_name'] = df['first_name'] + ' ' + df['last_name']
-            df['employee_name'] = df['employee_name'].str.replace(r'\s+', ' ', regex=True).str.strip()
-        elif 'employee_name' in df.columns:
-            df['employee_name'] = df['employee_name'].astype(str).str.strip()
-            if 'first_name' not in df.columns and 'last_name' not in df.columns:
-                name_parts = df['employee_name'].str.split(n=1, expand=True) 
-                df['first_name'] = name_parts[0].fillna('').str.strip()
-                if len(name_parts.columns) > 1:
-                    df['last_name'] = name_parts[1].fillna('').str.strip()
-                else:
-                    df['last_name'] = ''
-            elif 'first_name' in df.columns and 'last_name' in df.columns:
-
-                df['first_name'] = df['first_name'].fillna('').astype(str).str.strip()
-                df['last_name'] = df['last_name'].fillna('').astype(str).str.strip()
-                df['employee_name'] = df['first_name'] + ' ' + df['last_name']
-                df['employee_name'] = df['employee_name'].str.replace(r'\s+', ' ', regex=True).str.strip()
+            df['employee_name'] = df['employee_name'].str.strip() # Remove leading/trailing spaces
+            
+            # Check if any 'employee_name' became empty after construction (e.g., if both first/last were empty)
+            if (df['employee_name'] == '').any():
+                flash("Warning: Some rows in Employee Data have empty 'employee_name' even after combining 'first_name' and 'last_name'. "
+                      "This might lead to less accurate matches for those entries.", "warning")
+        else:
+            # If 'employee_name' exists, ensure it's a string and handle NaNs
+            df['employee_name'] = df['employee_name'].fillna('').astype(str)
 
 
-        
-        required_processing_columns = ['emp_id', 'first_name', 'last_name', 'employee_name'] 
-        if not all(col in df.columns for col in required_processing_columns):
-            missing_cols = [col for col in required_processing_columns if col not in df.columns]
-            flash(f"Error: Employee data CSV is missing required columns: {', '.join(missing_cols)}. Please ensure it has 'emp_id', 'first_name', 'last_name' or their aliases, or a 'full name' equivalent.", "error")
-            return pd.DataFrame(columns=['emp_id', 'employee_name', 'first_name', 'last_name'])
-
-        
-        df['emp_id'] = df['emp_id'].astype(str).str.strip() 
-        df['first_name'] = df['first_name'].fillna('').astype(str).str.strip()
-        df['last_name'] = df['last_name'].fillna('').astype(str).str.strip()
-        df['employee_name'] = df['employee_name'].fillna('').astype(str).str.strip()
-
-
-        return df[['emp_id', 'employee_name', 'first_name', 'last_name']]
-
+        return df
     except pd.errors.EmptyDataError:
-        flash("Error: The uploaded Employee Data CSV file is empty.", "error")
-        print("Error: The CSV file is empty.")
+        flash("Error: The Employee Data CSV file is empty.", "error")
+        return pd.DataFrame()
+    except pd.errors.ParserError:
+        flash("Error: Could not parse Employee Data CSV. Please ensure it's a valid CSV format.", "error")
+        return pd.DataFrame()
     except Exception as e:
-        flash(f"An unexpected error occurred while processing the Employee Data CSV: {e}", "error")
-        print(f"An unexpected error occurred while processing employee data: {e}")
+        flash(f"Error reading Employee Data CSV: {e}", "error")
+        return pd.DataFrame()
 
-    return pd.DataFrame(columns=['emp_id', 'employee_name', 'first_name', 'last_name'])
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -195,9 +305,9 @@ def index():
             return redirect(url_for('index'))
 
         for i, input_username in enumerate(input_usernames):
-            
-            employees_df['current_score'] = employees_df.apply(
-                lambda row: compute_match_score(
+            # 1. Calculate initial fuzzy scores for all employees
+            employees_df['fuzzy_score'] = employees_df.apply(
+                lambda row: compute_fuzzy_score( # <<< USING ORIGINAL FUZZY SCORE
                     input_username,
                     row['employee_name'],
                     row['first_name'],
@@ -206,13 +316,11 @@ def index():
                 ), axis=1
             )
             
-            sorted_matches = employees_df.sort_values('current_score', ascending=False).copy() 
-            
-            
-            matches_to_add = sorted_matches[sorted_matches['current_score'] > 0].head(TOTAL_MATCHES_TO_DISPLAY)
+            # Sort by fuzzy score initially
+            sorted_by_fuzzy = employees_df.sort_values('fuzzy_score', ascending=False).copy()
 
-            if matches_to_add.empty:
-                
+            # Identify the top score
+            if sorted_by_fuzzy.empty:
                 final_output_rows.append({
                     'username': input_username,
                     'emp_id': 'N/A',
@@ -220,30 +328,87 @@ def index():
                     'confidence_score': '0.00%',
                     'match_type': 'No Match'
                 })
+                continue # Move to next username
+
+            top_fuzzy_score = sorted_by_fuzzy.iloc[0]['fuzzy_score']
+
+            # Find all employees with a score similar to the top score
+            # These are the candidates for ML tie-breaking
+            ambiguous_candidates = sorted_by_fuzzy[
+                (top_fuzzy_score - sorted_by_fuzzy['fuzzy_score']) <= SCORE_SIMILARITY_THRESHOLD
+            ].copy()
+
+            # 2. Conditional ML Application:
+            if ml_model and not ambiguous_candidates.empty and len(ambiguous_candidates) > 1:
+                # Only apply ML if there's a model AND multiple similar scores
+                print(f"Applying ML for tie-breaking for username: {input_username}")
+                # Calculate ML refinement scores only for the ambiguous candidates
+                ambiguous_candidates['ml_refinement_score'] = ambiguous_candidates.apply(
+                    lambda row: compute_ml_refinement_score(
+                        input_username,
+                        row['employee_name'],
+                        row['first_name'],
+                        row['last_name'],
+                        row['emp_id']
+                    ), axis=1
+                )
+                
+                # --- START OF FIX ---
+                # Create a Series of ML scores from ambiguous candidates, indexed by emp_id
+                ml_scores_series = ambiguous_candidates.set_index('emp_id')['ml_refinement_score']
+                
+                # Map these ML scores to the full employees_df using emp_id
+                # .map() will automatically place NaN for emp_ids not in ml_scores_series.index
+                ml_bonus_scores = employees_df['emp_id'].map(ml_scores_series) / 1000
+                
+                # Fill NaN values (for non-ambiguous candidates) with 0, so they don't affect fuzzy_score
+                ml_bonus_scores = ml_bonus_scores.fillna(0)
+
+                # Add this bonus to the fuzzy score to create the final sorting score
+                employees_df['final_sort_score'] = employees_df['fuzzy_score'] + ml_bonus_scores
+                # --- END OF FIX ---
+                
+                # Re-sort the entire DataFrame based on the refined scores
+                sorted_matches = employees_df.sort_values('final_sort_score', ascending=False).copy()
+                
+            else:
+                # If no ML model, or no tie-breaking needed, just use the fuzzy score
+                sorted_matches = sorted_by_fuzzy
+            
+            # Now, proceed with selecting top matches based on the (potentially ML-influenced) sorted order
+            matches_to_add = sorted_matches[sorted_matches['fuzzy_score'] > 0].head(TOTAL_MATCHES_TO_DISPLAY)
+            # Use 'fuzzy_score' for confidence_score display, as ML is for tie-breaking order
+
+            if matches_to_add.empty:
+                final_output_rows.append({
+                    'username': input_username,
+                    'emp_id': 'N/A',
+                    'emp_name': 'N/A',
+                    'confidence_score': '0.00%',
+                    'match_type': 'No Match'
+                })
+                continue # Move to next username
+
             else:
                 for rank_idx, (_, match_row) in enumerate(matches_to_add.iterrows()):
                     match_type = ''
                     if rank_idx == 0:
-                        
-                        if match_row['current_score'] >= TOP_MATCH_THRESHOLD:
+                        if match_row['fuzzy_score'] >= TOP_MATCH_THRESHOLD: # Use fuzzy score for threshold
                             match_type = 'Top Match'
                         else:
                             match_type = 'Best Match (Below Threshold)'
                     elif rank_idx < NUM_TOP_GROUP_MATCHES:
-                        
                         match_type = f'Top Match'
                     else:
-                        
                         match_type = f'Other Possible Match {rank_idx - NUM_TOP_GROUP_MATCHES + 1}'
 
                     final_output_rows.append({
                         'username': input_username,
                         'emp_id': match_row['emp_id'],
                         'emp_name': match_row['employee_name'],
-                        'confidence_score': f"{match_row['current_score']:.2f}%",
+                        'confidence_score': f"{match_row['fuzzy_score']:.2f}%", # Display fuzzy score as confidence
                         'match_type': match_type
                     })
-            
             
             if i < len(input_usernames) - 1:
                 final_output_rows.append({
@@ -260,7 +425,6 @@ def index():
 
         results_df = pd.DataFrame(final_output_rows)
 
-        
         output_buffer = io.StringIO()
         results_df.to_csv(output_buffer, index=False)
         output_buffer.seek(0) 
