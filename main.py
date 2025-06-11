@@ -24,7 +24,7 @@ NUM_ADDITIONAL_POSSIBLE_MATCHES = 10
 
 TOTAL_MATCHES_TO_DISPLAY = NUM_TOP_GROUP_MATCHES + NUM_ADDITIONAL_POSSIBLE_MATCHES
 
-TOP_MATCH_THRESHOLD = 65
+TOP_MATCH_THRESHOLD = 80
 
 def compute_match_score(username, employee_name, first_name, last_name, emp_id):
    
