@@ -24,7 +24,7 @@ TOP_MATCH_THRESHOLD = 65
 
 # Define a threshold for considering scores "similar" for ML tie-breaking
 # If top scores are within this percentage point difference, ML is invoked.
-SCORE_SIMILARITY_THRESHOLD = 2.0 # e.g., if scores are 88.4% and 87.5%, difference is 0.9%, within 2.0%
+SCORE_SIMILARITY_THRESHOLD = 1.0 # e.g., if scores are 88.4% and 87.5%, difference is 0.9%, within 2.0%
 
 # --- ML Model Loading ---
 ML_MODEL_PATH = 'fuzzy_match_model.joblib'
@@ -121,8 +121,8 @@ def compute_fuzzy_score(username, employee_name, first_name, last_name, emp_id):
         (avg_last_match * 0.2) +     # Last name part match
         (soundex_match_last * 8) +   # Strong bonus for last name phonetic match
         (metaphone_match_last * 8) + # Strong bonus for last name phonetic match
-        (soundex_match_first * 4) +  # Moderate bonus for first name phonetic match
-        (metaphone_match_first * 4) + # Moderate bonus for first name phonetic match
+        (soundex_match_first * 8) +  # Moderate bonus for first name phonetic match
+        (metaphone_match_first * 8) + # Moderate bonus for first name phonetic match
         number_match_bonus           # Bonus for ID match
     )
     
