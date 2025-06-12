@@ -11,14 +11,15 @@ app.secret_key = 'your_super_secret_key_here'
 
 UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+    os.makedirs(os.path.join(os.getcwd(), UPLOAD_FOLDER))
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
-NUM_TOP_GROUP_MATCHES = 4
-NUM_ADDITIONAL_POSSIBLE_MATCHES = 2
-TOTAL_MATCHES_TO_DISPLAY = NUM_TOP_GROUP_MATCHES + NUM_ADDITIONAL_POSSIBLE_MATCHES
-TOP_MATCH_THRESHOLD = 75
+
+T1 = 90
+T2 = 80
+T3 = 70
+
 
 
 def compute_match_score(username, employee_name, first_name, last_name, emp_id):
@@ -34,28 +35,10 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     if first_name_lower and last_name_lower:
 
         
-        if username_lower == f"{first_name_lower}.{last_name_lower}"  :
+        if username_lower == f"{first_name_lower}.{last_name_lower}" :
             return 100.0
        
         if username_lower == f"{last_name_lower}.{first_name_lower}":
-            return 100.0
-        
-        if len(first_name_lower) > 0 and username_lower == f"{first_name_lower[0]}.{last_name_lower}":
-            return 100.0
-        
-        if len(last_name_lower) > 0 and username_lower == f"{first_name_lower}.{last_name_lower[0]}":
-            return 100.0
-        
-        if len(first_name_lower) > 0 and username_lower == f"{first_name_lower[:3]}.{last_name_lower}":
-            return 100.0
-        
-        if len(last_name_lower) > 0 and username_lower == f"{first_name_lower}.{last_name_lower[:3]}":
-            return 100.0
-        
-        if len(first_name_lower) > 0 and username_lower == f"{first_name_lower[:3]}_{last_name_lower}":
-            return 100.0
-        
-        if len(last_name_lower) > 0 and username_lower == f"{first_name_lower}.{last_name_lower[:3]}":
             return 100.0
         
         if username_lower == f"{first_name_lower}{last_name_lower}":
@@ -70,15 +53,6 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
         if username_lower == f"{last_name_lower} {first_name_lower}":
             return 100.0
         
-        if username_lower == f"{first_name_lower}.{last_name_lower[:3]}":
-            return 100.0
-        
-        if username_lower == f"{last_name_lower}.{first_name_lower[:3]}":
-            return 100.0
-        
-        if username_lower == f"{first_name_lower}{last_name_lower[:3]}":
-            return 100.0
-        
         
        
     
@@ -86,7 +60,7 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     number_match_bonus = 0
     if numbers_in_username:
         if str(emp_id).lower() in numbers_in_username:
-            number_match_bonus = 25
+            number_match_bonus = 5
 
     lev_full = fuzz.ratio(username_lower, employee_name_lower)
     partial_full = fuzz.partial_ratio(username_lower, employee_name_lower)
@@ -120,14 +94,7 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
                 if parts[1][0] == first_name_lower[0]:
                     initial_match_bonus += 10 
 
-    
-    direct_first_name_substring_bonus = 0
-    if first_name_lower and first_name_lower in username_lower:
-        direct_first_name_substring_bonus = 10 
 
-    direct_last_name_substring_bonus = 0
-    if last_name_lower and last_name_lower in username_lower:
-        direct_last_name_substring_bonus = 10 
 
 
     
@@ -145,9 +112,8 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
         (soundex_match_first * 4) +  
         (metaphone_match_first * 4) + 
         number_match_bonus +
-        initial_match_bonus +
-        direct_first_name_substring_bonus +
-        direct_last_name_substring_bonus
+        initial_match_bonus 
+        
     )
     return min(composite, 100)
 
@@ -261,7 +227,6 @@ def index():
             return redirect(url_for('index'))
 
         for i, input_username in enumerate(input_usernames):
-
             employees_df['current_score'] = employees_df.apply(
                 lambda row: compute_match_score(
                     input_username,
@@ -274,30 +239,74 @@ def index():
 
             sorted_matches = employees_df.sort_values('current_score', ascending=False).copy()
 
-            matches_to_add = sorted_matches[sorted_matches['current_score'] > 0].head(TOTAL_MATCHES_TO_DISPLAY)
-
-            if matches_to_add.empty:
-
+            
+            top_matches = sorted_matches[sorted_matches['current_score'] >= T1].head(1) # Only take the very best if above T1
+            if not top_matches.empty:
+                match_row = top_matches.iloc[0]
                 final_output_rows.append({
                     'username': input_username,
+                    'rank': 'Top Match',
+                    'emp_id': match_row['emp_id'],
+                    'emp_name': match_row['employee_name'],
+                    'confidence_score': f"{match_row['current_score']:.2f}%"
+                })
+                
+            else:
+                final_output_rows.append({
+                    'username': input_username,
+                    'rank': 'Top Match',
                     'emp_id': 'N/A',
-                    'emp_name': 'N/A',
+                    'emp_name': 'NO CONFIDENT MATCH FOUND',
                     'confidence_score': '0.00%'
                 })
-            else:
-                for rank_idx, (_, match_row) in enumerate(matches_to_add.iterrows()):
-                    
+
+            
+            rank2_matches = sorted_matches[(sorted_matches['current_score'] >= T2) & (sorted_matches['current_score'] < T1)].head(3)
+            
+            if not rank2_matches.empty:
+                for _, match_row in rank2_matches.iterrows():
                     final_output_rows.append({
                         'username': input_username,
+                        'rank': 'Rank 2',
                         'emp_id': match_row['emp_id'],
                         'emp_name': match_row['employee_name'],
                         'confidence_score': f"{match_row['current_score']:.2f}%"
                     })
+            else:
+                final_output_rows.append({
+                    'username': input_username,
+                    'rank': 'Rank 2',
+                    'emp_id': 'N/A',
+                    'emp_name': 'NO CONFIDENT MATCH FOUND',
+                    'confidence_score': '0.00%'
+                })
 
+           
+            rank3_matches = sorted_matches[(sorted_matches['current_score'] >= T3) & (sorted_matches['current_score'] < T2)].head(1)
+            
+            if not rank3_matches.empty:
+                match_row = rank3_matches.iloc[0]
+                final_output_rows.append({
+                    'username': input_username,
+                    'rank': 'Rank 3',
+                    'emp_id': match_row['emp_id'],
+                    'emp_name': match_row['employee_name'],
+                    'confidence_score': f"{match_row['current_score']:.2f}%"
+                })
+            else:
+                final_output_rows.append({
+                    'username': input_username,
+                    'rank': 'Rank 3',
+                    'emp_id': 'N/A',
+                    'emp_name': 'NO CONFIDENT MATCH FOUND',
+                    'confidence_score': '0.00%'
+                })
 
+            
             if i < len(input_usernames) - 1:
                 final_output_rows.append({
                     'username': '',
+                    'rank': '',
                     'emp_id': '',
                     'emp_name': '',
                     'confidence_score': ''
@@ -308,7 +317,6 @@ def index():
             return redirect(url_for('index'))
 
         results_df = pd.DataFrame(final_output_rows)
-
 
         output_buffer = io.StringIO()
         results_df.to_csv(output_buffer, index=False)
