@@ -86,7 +86,7 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     number_match_bonus = 0
     if numbers_in_username:
         if str(emp_id).lower() in numbers_in_username:
-            number_match_bonus = 20
+            number_match_bonus = 25
 
     lev_full = fuzz.ratio(username_lower, employee_name_lower)
     partial_full = fuzz.partial_ratio(username_lower, employee_name_lower)
@@ -111,14 +111,14 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     if first_name_lower and username_lower:
         
         if username_lower[0] == first_name_lower[0]:
-            initial_match_bonus += 5
+            initial_match_bonus += 10
 
         
         if '.' in username_lower:
             parts = username_lower.split('.')
             if len(parts) > 1 and parts[1] and first_name_lower:
                 if parts[1][0] == first_name_lower[0]:
-                    initial_match_bonus += 5 
+                    initial_match_bonus += 10 
 
     
     direct_first_name_substring_bonus = 0
@@ -142,8 +142,8 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
         (max_token_set * 0.3) +     
         (soundex_match_last * 5) +  
         (metaphone_match_last * 5) + 
-        (soundex_match_first * 2) +  
-        (metaphone_match_first * 2) + 
+        (soundex_match_first * 4) +  
+        (metaphone_match_first * 4) + 
         number_match_bonus +
         initial_match_bonus +
         direct_first_name_substring_bonus +
@@ -282,31 +282,18 @@ def index():
                     'username': input_username,
                     'emp_id': 'N/A',
                     'emp_name': 'N/A',
-                    'confidence_score': '0.00%',
-                    'match_type': 'No Match'
+                    'confidence_score': '0.00%'
                 })
             else:
                 for rank_idx, (_, match_row) in enumerate(matches_to_add.iterrows()):
-                    match_type = ''
-                    if rank_idx == 0:
-
-                        if match_row['current_score'] >= TOP_MATCH_THRESHOLD:
-                            match_type = 'Top Match'
-                        else:
-                            match_type = 'Best Match'
-                    elif rank_idx < NUM_TOP_GROUP_MATCHES:
-
-                        match_type = f'Top Match'
-                    else:
-
-                        match_type = f'Other Possible Match'
+                    # Removed the 'match_type' variable and its assignment
+                    # The 'match_type' logic was here, but it's now gone
 
                     final_output_rows.append({
                         'username': input_username,
                         'emp_id': match_row['emp_id'],
                         'emp_name': match_row['employee_name'],
-                        'confidence_score': f"{match_row['current_score']:.2f}%",
-                        'match_type': match_type
+                        'confidence_score': f"{match_row['current_score']:.2f}%"
                     })
 
 
@@ -315,8 +302,7 @@ def index():
                     'username': '',
                     'emp_id': '',
                     'emp_name': '',
-                    'confidence_score': '',
-                    'match_type': '---'
+                    'confidence_score': ''
                 })
 
         if not final_output_rows:
