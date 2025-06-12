@@ -286,9 +286,7 @@ def index():
                 })
             else:
                 for rank_idx, (_, match_row) in enumerate(matches_to_add.iterrows()):
-                    # Removed the 'match_type' variable and its assignment
-                    # The 'match_type' logic was here, but it's now gone
-
+                    
                     final_output_rows.append({
                         'username': input_username,
                         'emp_id': match_row['emp_id'],
