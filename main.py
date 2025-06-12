@@ -20,6 +20,7 @@ NUM_ADDITIONAL_POSSIBLE_MATCHES = 2
 TOTAL_MATCHES_TO_DISPLAY = NUM_TOP_GROUP_MATCHES + NUM_ADDITIONAL_POSSIBLE_MATCHES
 TOP_MATCH_THRESHOLD = 75
 
+
 def compute_match_score(username, employee_name, first_name, last_name, emp_id):
    
     username_lower = str(username).lower().strip()
