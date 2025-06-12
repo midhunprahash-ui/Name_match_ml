@@ -65,7 +65,7 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
         
         if username_lower == f"{first_name_lower}{last_name_lower[:2]}":
             return 100.0
-
+        
        
     
     numbers_in_username = re.findall(r'\d+', username_lower)
