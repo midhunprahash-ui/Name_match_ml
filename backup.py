@@ -22,20 +22,20 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
 
     
     if first_name_lower and last_name_lower:
-        if username_lower == f"{first_name_lower}.{last_name_lower}": return 100.0
-        if username_lower == f"{last_name_lower}.{first_name_lower}": return 100.0
-        if len(first_name_lower) > 0 and username_lower == f"{first_name_lower[0]}.{last_name_lower}": return 100.0
-        if len(last_name_lower) > 0 and username_lower == f"{first_name_lower}.{last_name_lower[0]}": return 100.0
-        if len(first_name_lower) > 0 and username_lower == f"{first_name_lower[:3]}.{last_name_lower}": return 100.0
-        if len(last_name_lower) > 0 and username_lower == f"{first_name_lower}.{last_name_lower[:3]}": return 100.0
-        if len(first_name_lower) > 0 and username_lower == f"{first_name_lower[:3]}_{last_name_lower}": return 100.0
-        if username_lower == f"{first_name_lower}{last_name_lower}": return 100.0
-        if username_lower == f"{last_name_lower}{first_name_lower}": return 100.0
-        if username_lower == f"{first_name_lower} {last_name_lower}": return 100.0
-        if username_lower == f"{last_name_lower} {first_name_lower}": return 100.0
-        if username_lower == f"{first_name_lower}.{last_name_lower[:3]}": return 100.0
-        if username_lower == f"{last_name_lower}.{first_name_lower[:3]}": return 100.0
-        if username_lower == f"{first_name_lower}{last_name_lower[:3]}": return 100.0
+        if username_lower == f"{first_name_lower}.{last_name_lower}": return 99.0
+        if username_lower == f"{last_name_lower}.{first_name_lower}": return 99.0
+        if len(first_name_lower) > 0 and username_lower == f"{first_name_lower[0]}.{last_name_lower}": return 99.0
+        if len(last_name_lower) > 0 and username_lower == f"{first_name_lower}.{last_name_lower[0]}": return 99.0
+        if len(first_name_lower) > 0 and username_lower == f"{first_name_lower[:3]}.{last_name_lower}": return 99.0
+        if len(last_name_lower) > 0 and username_lower == f"{first_name_lower}.{last_name_lower[:3]}": return 99.0
+        if len(first_name_lower) > 0 and username_lower == f"{first_name_lower[:3]}_{last_name_lower}": return 99.0
+        if username_lower == f"{first_name_lower}{last_name_lower}": return 99.0
+        if username_lower == f"{last_name_lower}{first_name_lower}": return 99.0
+        if username_lower == f"{first_name_lower} {last_name_lower}": return 99.0
+        if username_lower == f"{last_name_lower} {first_name_lower}": return 99.0
+        if username_lower == f"{first_name_lower}.{last_name_lower[:3]}": return 99.0
+        if username_lower == f"{last_name_lower}.{first_name_lower[:3]}": return 99.0
+        if username_lower == f"{first_name_lower}{last_name_lower[:3]}": return 99.0
 
     numbers_in_username = re.findall(r'\d+', username_lower)
     number_match_bonus = 0
