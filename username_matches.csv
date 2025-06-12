@@ -1,0 +1,427 @@
+username,emp_id,emp_name,confidence_score
+swati.patel,7,Swati Patel,100.00%
+swati.patel,150,Swati Tripathi,99.20%
+swati.patel,138,Swati Iyer,98.60%
+swati.patel,97,Swati Joshi,98.60%
+swati.patel,4,Swati Rao,98.60%
+swati.patel,119,Swati Kapoor,98.60%
+,,,
+harshm37,37,Harsh Menon,100.00%
+harshm37,9,Harsh Sharma,96.20%
+harshm37,31,Harsh Naidu,96.20%
+harshm37,69,Harsh Jain,96.20%
+harshm37,142,Harsh Patel,96.20%
+harshm37,74,Harsh Gupta,96.20%
+,,,
+n.tripathi25,25,Neha Tripathi,100.00%
+n.tripathi25,150,Swati Tripathi,88.00%
+n.tripathi25,75,Ravi Tripathi,88.00%
+n.tripathi25,80,Vidya Tripathi,88.00%
+n.tripathi25,32,Lakshmi Tripathi,88.00%
+n.tripathi25,125,Karan Tripathi,88.00%
+,,,
+amit.kumar_,11,Amit Kumar,100.00%
+amit.kumar_,152,Anjanli Kumar,98.60%
+amit.kumar_,114,Amit Malhotra,97.40%
+amit.kumar_,67,Amit Jain,95.90%
+amit.kumar_,81,Amit Agarwal,95.90%
+amit.kumar_,58,Sanjay Kumar,88.60%
+,,,
+gauravg35,35,Gaurav Gupta,100.00%
+gauravg35,70,Gaurav Patel,98.00%
+gauravg35,23,Gaurav Naidu,98.00%
+gauravg35,107,Aarav Mehta,58.20%
+gauravg35,21,Ravi Das,50.40%
+gauravg35,108,Ravi Jain,50.10%
+,,,
+pooja.das_,68,Pooja Reddy,100.00%
+pooja.das_,19,Pooja Das,100.00%
+pooja.das_,84,Pooja Ghosh,100.00%
+pooja.das_,79,Pooja Malhotra,100.00%
+pooja.das_,118,Pooja Nair,100.00%
+pooja.das_,93,Pooja Menon,100.00%
+,,,
+d.malhotra,30,Deepa Malhotra,100.00%
+d.malhotra,14,Divya Malhotra,100.00%
+d.malhotra,143,Naveen Malhotra,96.70%
+d.malhotra,114,Amit Malhotra,96.70%
+d.malhotra,79,Pooja Malhotra,96.70%
+d.malhotra,59,Sneha Malhotra,96.70%
+,,,
+sm47,47,Sneha Mehta,65.70%
+sm47,95,Smita Agarwal,56.50%
+sm47,134,Sanjay Das,42.40%
+sm47,149,Sneha Yadav,39.20%
+sm47,59,Sneha Malhotra,39.20%
+sm47,45,Sneha Kulkarni,39.20%
+,,,
+r.verma26,26,Rajesh Verma,100.00%
+r.verma26,116,Priya Verma,82.60%
+r.verma26,120,Kavita Verma,82.60%
+r.verma26,76,Lakshmi Verma,82.60%
+r.verma26,15,Ramesh Rao,55.30%
+r.verma26,90,Ravi Iyer,53.50%
+,,,
+r.das21,21,Ravi Das,100.00%
+r.das21,144,Ramesh Das,86.00%
+r.das21,92,Priya Das,76.60%
+r.das21,127,Varun Das,76.60%
+r.das21,134,Sanjay Das,76.00%
+r.das21,19,Pooja Das,76.00%
+,,,
+dm42,42,Divya Mishra,62.00%
+dm42,117,Deepa Kulkarni,35.20%
+dm42,123,Deepa Ghosh,35.20%
+dm42,20,Divya Rao,35.20%
+dm42,14,Divya Malhotra,35.20%
+dm42,39,Divya Singh,35.20%
+,,,
+rajeshm33,33,Rajesh Menon,100.00%
+rajeshm33,1,Rajesh Reddy,98.00%
+rajeshm33,40,Rajesh Bhatia,98.00%
+rajeshm33,26,Rajesh Verma,98.00%
+rajeshm33,15,Ramesh Rao,75.10%
+rajeshm33,144,Ramesh Das,75.10%
+,,,
+t.ghosh22,22,Tanvi Ghosh,100.00%
+t.ghosh22,123,Deepa Ghosh,82.60%
+t.ghosh22,84,Pooja Ghosh,82.60%
+t.ghosh22,83,Swati Ghosh,82.60%
+t.ghosh22,97,Swati Joshi,45.90%
+t.ghosh22,142,Harsh Patel,45.90%
+,,,
+anjali.malhotra,29,Anjali Mishra,100.00%
+anjali.malhotra,28,Anjali Thakur,100.00%
+anjali.malhotra,114,Amit Malhotra,100.00%
+anjali.malhotra,36,Anjali Kulkarni,100.00%
+anjali.malhotra,2,Anjali Malhotra,100.00%
+anjali.malhotra,102,Anjali Shetty,100.00%
+,,,
+divyas39,39,Divya Singh,100.00%
+divyas39,42,Divya Mishra,96.20%
+divyas39,20,Divya Rao,96.20%
+divyas39,14,Divya Malhotra,96.20%
+divyas39,19,Pooja Das,53.10%
+divyas39,92,Priya Das,53.10%
+,,,
+divya.rao_20,20,Divya Rao,100.00%
+divya.rao_20,42,Divya Mishra,97.70%
+divya.rao_20,39,Divya Singh,97.70%
+divya.rao_20,14,Divya Malhotra,97.70%
+divya.rao_20,15,Ramesh Rao,92.00%
+divya.rao_20,57,Priya Rao,87.10%
+,,,
+v.sharma24,24,Vikram Sharma,100.00%
+v.sharma24,103,Harsh Sharma,85.00%
+v.sharma24,9,Harsh Sharma,85.00%
+v.sharma24,110,Vidya Mishra,61.60%
+v.sharma24,47,Sneha Mehta,54.40%
+v.sharma24,149,Sneha Yadav,54.40%
+,,,
+priya.chatterjee_18,18,Priya Chatterjee,100.00%
+priya.chatterjee_18,116,Priya Verma,94.10%
+priya.chatterjee_18,57,Priya Rao,92.90%
+priya.chatterjee_18,92,Priya Das,92.90%
+priya.chatterjee_18,50,Priya Yadav,92.60%
+priya.chatterjee_18,136,Nitin Chatterjee,90.70%
+,,,
+anjali.menon_,13,Anjali Iyer,100.00%
+anjali.menon_,91,Anjali Agarwal,100.00%
+anjali.menon_,29,Anjali Mishra,100.00%
+anjali.menon_,36,Anjali Kulkarni,100.00%
+anjali.menon_,2,Anjali Malhotra,100.00%
+anjali.menon_,102,Anjali Shetty,100.00%
+,,,
+sk45,45,Sneha Kulkarni,60.20%
+sk45,134,Sanjay Das,42.40%
+sk45,119,Swati Kapoor,36.10%
+sk45,58,Sanjay Kumar,36.10%
+sk45,83,Swati Ghosh,35.20%
+sk45,47,Sneha Mehta,35.20%
+,,,
+lakshmit,51,Lakshmi Patel,100.00%
+lakshmit,104,Lakshmi Chatterjee,100.00%
+lakshmit,32,Lakshmi Tripathi,100.00%
+lakshmit,82,Lakshmi Joshi,100.00%
+lakshmit,76,Lakshmi Verma,100.00%
+lakshmit,11,Amit Kumar,66.00%
+,,,
+varun.agarwal,81,Amit Agarwal,100.00%
+varun.agarwal,91,Anjali Agarwal,100.00%
+varun.agarwal,8,Varun Agarwal,100.00%
+varun.agarwal,139,Varun Patel,97.40%
+varun.agarwal,72,Varun Chatterjee,96.80%
+varun.agarwal,127,Varun Das,96.80%
+,,,
+g.naidu23,23,Gaurav Naidu,100.00%
+g.naidu23,31,Harsh Naidu,82.60%
+g.naidu23,62,Ramesh Nair,50.10%
+g.naidu23,78,Kunal Nair,50.10%
+g.naidu23,118,Pooja Nair,50.10%
+g.naidu23,35,Gaurav Gupta,49.00%
+,,,
+a.mishra29,29,Anjali Mishra,100.00%
+a.mishra29,88,Manoj Mishra,95.00%
+a.mishra29,121,Manoj Mishra,95.00%
+a.mishra29,110,Vidya Mishra,85.00%
+a.mishra29,132,Nitin Mishra,85.00%
+a.mishra29,42,Divya Mishra,85.00%
+,,,
+ramesh.rao_,144,Ramesh Das,100.00%
+ramesh.rao_,62,Ramesh Nair,100.00%
+ramesh.rao_,137,Ramesh Joshi,100.00%
+ramesh.rao_,15,Ramesh Rao,100.00%
+ramesh.rao_,56,Harsh Rao,88.00%
+ramesh.rao_,26,Rajesh Verma,85.10%
+,,,
+rekhaj38,38,Rekha Jain,100.00%
+rekhaj38,94,Rekha Singh,96.20%
+rekhaj38,1,Rajesh Reddy,57.80%
+rekhaj38,40,Rajesh Bhatia,57.80%
+rekhaj38,33,Rajesh Menon,57.80%
+rekhaj38,26,Rajesh Verma,57.80%
+,,,
+anjalik36,13,Anjali Iyer,100.00%
+anjalik36,102,Anjali Shetty,100.00%
+anjalik36,36,Anjali Kulkarni,100.00%
+anjalik36,28,Anjali Thakur,100.00%
+anjalik36,12,Anjali Menon,100.00%
+anjalik36,29,Anjali Mishra,100.00%
+,,,
+harsh.sharma,103,Harsh Sharma,100.00%
+harsh.sharma,56,Harsh Rao,100.00%
+harsh.sharma,9,Harsh Sharma,100.00%
+harsh.sharma,14,Harsh Nadar,98.30%
+harsh.sharma,115,Harsh Kulkarni,97.70%
+harsh.sharma,130,Harsh Menon,97.70%
+,,,
+a.thakur28,28,Anjali Thakur,100.00%
+a.thakur28,141,Tanvi Thakur,95.00%
+a.thakur28,10,Neha Thakur,85.30%
+a.thakur28,11,Amit Kumar,58.00%
+a.thakur28,152,Anjanli Kumar,53.80%
+a.thakur28,81,Amit Agarwal,48.40%
+,,,
+sj46,46,Sanjay Jain,74.00%
+sj46,153,Sanjay Kulsingh,49.00%
+sj46,134,Sanjay Das,49.00%
+sj46,58,Sanjay Kumar,49.00%
+sj46,3,Sanjay Kulkarni,49.00%
+sj46,151,Sanjith Kapoor,46.60%
+,,,
+nisha.mishra_,17,Nisha Mishra,100.00%
+nisha.mishra_,132,Nitin Mishra,99.20%
+nisha.mishra_,88,Manoj Mishra,98.90%
+nisha.mishra_,121,Manoj Mishra,98.90%
+nisha.mishra_,34,Nisha Desai,97.40%
+nisha.mishra_,92,Nisha Kapoor,96.80%
+,,,
+nd49,49,Neha Desai,63.20%
+nd49,23,Gaurav Naidu,51.40%
+nd49,31,Harsh Naidu,51.40%
+nd49,6,Nitin Pandey,49.00%
+nd49,14,Harsh Nadar,43.50%
+nd49,145,Sneha Pandey,39.00%
+,,,
+divya.malhotra_,42,Divya Mishra,100.00%
+divya.malhotra_,30,Deepa Malhotra,100.00%
+divya.malhotra_,14,Divya Malhotra,100.00%
+divya.malhotra_,20,Divya Rao,97.40%
+divya.malhotra_,39,Divya Singh,95.00%
+divya.malhotra_,59,Sneha Malhotra,91.00%
+,,,
+nitin.pandey,6,Nitin Pandey,100.00%
+nitin.pandey,77,Nitin Yadav,98.30%
+nitin.pandey,87,Nitin Shetty,97.70%
+nitin.pandey,132,Nitin Mishra,97.70%
+nitin.pandey,136,Nitin Chatterjee,97.70%
+nitin.pandey,113,Vidya Pandey,90.10%
+,,,
+anjali.iyer_13,36,Anjali Kulkarni,100.00%
+anjali.iyer_13,91,Anjali Agarwal,100.00%
+anjali.iyer_13,102,Anjali Shetty,100.00%
+anjali.iyer_13,2,Anjali Malhotra,100.00%
+anjali.iyer_13,29,Anjali Mishra,100.00%
+anjali.iyer_13,28,Anjali Thakur,100.00%
+,,,
+manoj.pandey,5,Manoj Pandey,100.00%
+manoj.pandey,71,Manoj Jain,99.20%
+manoj.pandey,88,Manoj Mishra,97.70%
+manoj.pandey,121,Manoj Mishra,97.70%
+manoj.pandey,6,Nitin Pandey,90.10%
+manoj.pandey,145,Sneha Pandey,90.10%
+,,,
+rajesh.reddy,1,Rajesh Reddy,100.00%
+rajesh.reddy,26,Rajesh Verma,100.00%
+rajesh.reddy,40,Rajesh Bhatia,100.00%
+rajesh.reddy,33,Rajesh Menon,100.00%
+rajesh.reddy,111,Suresh Reddy,92.50%
+rajesh.reddy,68,Pooja Reddy,87.70%
+,,,
+n.menon27,27,Naveen Menon,100.00%
+n.menon27,55,Ishita Menon,82.60%
+n.menon27,33,Rajesh Menon,82.60%
+n.menon27,12,Anjali Menon,82.60%
+n.menon27,130,Harsh Menon,82.60%
+n.menon27,93,Pooja Menon,82.60%
+,,,
+by43,43,Bhavna Yadav,62.00%
+by43,89,Bhavna Yadav,37.00%
+by43,63,Bhavna Singh,34.00%
+by43,73,Vidya Bhatia,26.10%
+by43,1,Rajesh Reddy,25.20%
+by43,149,Sneha Yadav,25.20%
+,,,
+rd44,1,Rajesh Reddy,63.50%
+rd44,44,Rahul Desai,61.70%
+rd44,111,Suresh Reddy,53.50%
+rd44,68,Pooja Reddy,53.50%
+rd44,15,Ramesh Rao,42.40%
+rd44,21,Ravi Das,40.60%
+,,,
+neha.thakur,10,Neha Thakur,100.00%
+neha.thakur,141,Tanvi Thakur,100.00%
+neha.thakur,49,Neha Desai,95.90%
+neha.thakur,25,Neha Tripathi,95.90%
+neha.thakur,28,Anjali Thakur,91.30%
+neha.thakur,61,Tanvi Mehta,61.60%
+,,,
+sb48,48,Sneha Bhatia,61.10%
+sb48,134,Sanjay Das,42.40%
+sb48,86,Shweta Singh,35.20%
+sb48,145,Sneha Pandey,35.20%
+sb48,47,Sneha Mehta,35.20%
+sb48,119,Swati Kapoor,35.20%
+,,,
+harshnaid,31,Harsh Naidu,100.00%
+harshnaid,14,Harsh Nadar,98.00%
+harshnaid,69,Harsh Jain,94.40%
+harshnaid,115,Harsh Kulkarni,92.60%
+harshnaid,103,Harsh Sharma,92.60%
+harshnaid,130,Harsh Menon,92.60%
+,,,
+nishad34,34,Nisha Desai,100.00%
+nishad34,64,Nisha Yadav,96.20%
+nishad34,92,Nisha Kapoor,96.20%
+nishad34,17,Nisha Mishra,96.20%
+nishad34,132,Nitin Mishra,66.10%
+nishad34,49,Neha Desai,57.10%
+,,,
+swati.rao,83,Swati Ghosh,100.00%
+swati.rao,4,Swati Rao,100.00%
+swati.rao,97,Swati Joshi,100.00%
+swati.rao,150,Swati Tripathi,100.00%
+swati.rao,7,Swati Patel,100.00%
+swati.rao,119,Swati Kapoor,100.00%
+,,,
+rajeshb40,40,Rajesh Bhatia,100.00%
+rajeshb40,26,Rajesh Verma,98.00%
+rajeshb40,33,Rajesh Menon,98.00%
+rajeshb40,1,Rajesh Reddy,98.00%
+rajeshb40,62,Ramesh Nair,75.10%
+rajeshb40,15,Ramesh Rao,75.10%
+,,,
+vj,72,Varun Chatterjee,47.50%
+vj,80,Vidya Tripathi,47.50%
+vj,110,Vidya Mishra,47.50%
+vj,113,Vidya Pandey,47.50%
+vj,41,Vikram Joshi,47.50%
+vj,122,Vidya Kulkarni,47.50%
+,,,
+sanjay.kulkarni,153,Sanjay Kulsingh,100.00%
+sanjay.kulkarni,45,Sneha Kulkarni,100.00%
+sanjay.kulkarni,3,Sanjay Kulkarni,100.00%
+sanjay.kulkarni,58,Sanjay Kumar,100.00%
+sanjay.kulkarni,46,Sanjay Jain,98.60%
+sanjay.kulkarni,134,Sanjay Das,97.10%
+,,,
+py50,50,Priya Yadav,76.40%
+py50,92,Priya Das,51.40%
+py50,57,Priya Rao,51.40%
+py50,18,Priya Chatterjee,51.40%
+py50,116,Priya Verma,51.40%
+py50,68,Pooja Reddy,38.20%
+,,,
+the_ravijain,108,Ravi Jain,87.80%
+the_ravijain,67,Amit Jain,74.20%
+the_ravijain,135,Anil Jain,74.20%
+the_ravijain,38,Rekha Jain,73.00%
+the_ravijain,140,Rahul Jain,73.00%
+the_ravijain,75,Ravi Tripathi,71.80%
+,,,
+singh,86,Shweta Singh,100.00%
+singh,94,Rekha Singh,100.00%
+singh,39,Divya Singh,100.00%
+singh,63,Bhavna Singh,100.00%
+singh,153,Sanjay Kulsingh,90.20%
+singh,59,Sneha Malhotra,66.10%
+,,,
+the_sunilrao,100,Sunil Rao,90.50%
+the_sunilrao,96,Sunil Joshi,75.40%
+the_sunilrao,148,Sunil Chatterjee,75.40%
+the_sunilrao,4,Swati Rao,68.80%
+the_sunilrao,56,Harsh Rao,66.40%
+the_sunilrao,15,Ramesh Rao,65.50%
+,,,
+a.kumar,152,Anjanli Kumar,100.00%
+a.kumar,11,Amit Kumar,100.00%
+a.kumar,58,Sanjay Kumar,94.90%
+a.kumar,28,Anjali Thakur,69.10%
+a.kumar,36,Anjali Kulkarni,61.00%
+a.kumar,78,Kunal Nair,60.10%
+,,,
+bhavna.yadav_pro,43,Bhavna Yadav,100.00%
+bhavna.yadav_pro,89,Bhavna Yadav,100.00%
+bhavna.yadav_pro,63,Bhavna Singh,96.50%
+bhavna.yadav_pro,149,Sneha Yadav,85.60%
+bhavna.yadav_pro,64,Nisha Yadav,85.60%
+bhavna.yadav_pro,52,Meena Yadav,85.60%
+,,,
+priya.rao_pro,57,Priya Rao,100.00%
+priya.rao_pro,116,Priya Verma,97.40%
+priya.rao_pro,92,Priya Das,96.80%
+priya.rao_pro,50,Priya Yadav,96.80%
+priya.rao_pro,18,Priya Chatterjee,96.80%
+priya.rao_pro,15,Ramesh Rao,92.90%
+,,,
+s.kapoor,119,Swati Kapoor,100.00%
+s.kapoor,151,Sanjith Kapoor,100.00%
+s.kapoor,129,Pallavi Kapoor,95.80%
+s.kapoor,92,Nisha Kapoor,95.80%
+s.kapoor,147,Vidya Kapoor,95.80%
+s.kapoor,4,Swati Rao,55.00%
+,,,
+patel2,142,Harsh Patel,100.00%
+patel2,146,Karan Patel,100.00%
+patel2,7,Swati Patel,100.00%
+patel2,139,Varun Patel,100.00%
+patel2,70,Gaurav Patel,100.00%
+patel2,51,Lakshmi Patel,100.00%
+,,,
+swati.iyer_dev,138,Swati Iyer,100.00%
+swati.iyer_dev,150,Swati Tripathi,95.90%
+swati.iyer_dev,119,Swati Kapoor,95.90%
+swati.iyer_dev,83,Swati Ghosh,95.90%
+swati.iyer_dev,7,Swati Patel,95.90%
+swati.iyer_dev,97,Swati Joshi,95.90%
+,,,
+snehabhatia_official,48,Sneha Bhatia,95.70%
+snehabhatia_official,47,Sneha Mehta,79.10%
+snehabhatia_official,59,Sneha Malhotra,78.20%
+snehabhatia_official,149,Sneha Yadav,77.00%
+snehabhatia_official,145,Sneha Pandey,75.20%
+snehabhatia_official,45,Sneha Kulkarni,74.60%
+,,,
+Thakur.Neha,10,Neha Thakur,100.00%
+Thakur.Neha,141,Tanvi Thakur,100.00%
+Thakur.Neha,49,Neha Desai,95.90%
+Thakur.Neha,25,Neha Tripathi,95.90%
+Thakur.Neha,28,Anjali Thakur,91.30%
+Thakur.Neha,61,Tanvi Mehta,65.50%
+,,,
+neha.Thakur,10,Neha Thakur,100.00%
+neha.Thakur,141,Tanvi Thakur,100.00%
+neha.Thakur,49,Neha Desai,95.90%
+neha.Thakur,25,Neha Tripathi,95.90%
+neha.Thakur,28,Anjali Thakur,91.30%
+neha.Thakur,61,Tanvi Mehta,61.60%
