@@ -46,6 +46,18 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
         if len(last_name_lower) > 0 and username_lower == f"{first_name_lower}.{last_name_lower[0]}":
             return 100.0
         
+        if len(first_name_lower) > 0 and username_lower == f"{first_name_lower[:3]}.{last_name_lower}":
+            return 100.0
+        
+        if len(last_name_lower) > 0 and username_lower == f"{first_name_lower}.{last_name_lower[:3]}":
+            return 100.0
+        
+        if len(first_name_lower) > 0 and username_lower == f"{first_name_lower[:3]}_{last_name_lower}":
+            return 100.0
+        
+        if len(last_name_lower) > 0 and username_lower == f"{first_name_lower}.{last_name_lower[:3]}":
+            return 100.0
+        
         if username_lower == f"{first_name_lower}{last_name_lower}":
             return 100.0
         
@@ -58,14 +70,15 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
         if username_lower == f"{last_name_lower} {first_name_lower}":
             return 100.0
         
-        if username_lower == f"{first_name_lower}.{last_name_lower[:2]}":
+        if username_lower == f"{first_name_lower}.{last_name_lower[:3]}":
             return 100.0
         
-        if username_lower == f"{last_name_lower}.{first_name_lower[:2]}":
+        if username_lower == f"{last_name_lower}.{first_name_lower[:3]}":
             return 100.0
         
-        if username_lower == f"{first_name_lower}{last_name_lower[:2]}":
+        if username_lower == f"{first_name_lower}{last_name_lower[:3]}":
             return 100.0
+        
         
        
     
