@@ -66,11 +66,11 @@ Your `employee_data.csv` should include the following columns:
 > You must generate a sample `employee_data.csv` file and save it to your project folder in the format given above to use the application, or use the `employee_data.csv` file uploaded in the repo.
 
 ---
-### 🖼️ Sample Output
+<h3>🖼️ Sample Output</h3>
 
-Below is a sample output from the application showing the confidence scores and categorized match types:
+<p>Below is a sample output from the application showing the confidence scores and categorized match types:</p>
 
-![Sample Output](example.png)
+<img src="assets/example.png" alt="Sample Output" width="400"/>
 
 ___
 
