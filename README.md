@@ -12,7 +12,7 @@
 
 # 🔍 Username Matching System
 
-This project is a **Flask web application** that takes a username input and predicts the most likely employee(s) it belongs to using intelligent fuzzy matching and phonetic similarity.
+This project is a **Flask web application** that takes in a ```.csv``` file containing **Usernames** and another ```.csv``` files containing the **Employee Details** as the input and perform the string matching algorithm engineered with various logics of string matching considering human psycology of username naming to return a ```.csv``` file containing the table of usernames matched with thee corresponding employee who could have used the username with a confidence score.
 
 ---
 
