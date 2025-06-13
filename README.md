@@ -16,17 +16,30 @@ This project is a **Flask web application** that takes a username input and pred
 
 ---
 
+## 🔁 About This Project
+
+This project is a follow-up to my earlier work on username matching using purely machine learning techniques. In that version, I trained models to classify username-employee pairings based on engineered features like string similarity scores and phonetic distances. While promising, the ML-based approach introduced complexity and opacity that made it harder to justify for a use case rooted in pattern recognition and linguistic intuition.
+
+**This version aims to simplify the process while improving performance** by leaning entirely on traditional methods such as:
+- Fuzzy string matching
+- Phonetic algorithms
+- Rule-based heuristics
+
+It turns out that, for this use case, traditional algorithms not only yield comparable or better accuracy but also keep the logic explainable and easily modifiable.
+
+---
+
 ## 🚀 Features
 
 - Match usernames against employee data using:
   - **Fuzzy string matching** (`thefuzz`)
   - **Phonetic algorithms** (`jellyfish` - Soundex, Metaphone)
-  - **Heuristics** (e.g., `emp_ID` presence in username)
-- Ranks and returns:
-  - **Best matches** (confidence score ≥ 65)
-  - **Top suggestions** if no strong match is found
-- Clean web UI for input and result display
-
+  - **Heuristics** (e.g., `emp_id` presence in username)
+- Categorized ranking with labels:
+  - **TOP MATCH** (highest confidence)
+  - **BEST MATCH** (next highest)
+  - **NOT SURE** (lower confidence)
+- Clean Flask web UI for input and results
 ---
 
 ## 🧠 Tech Stack
@@ -53,6 +66,10 @@ Your `employee_data.csv` should include the following columns:
 > You must generate a sample `employee_data.csv` file and save it to your project folder in the format given above to use the application, or use the `employee_data.csv` file uploaded in the repo.
 
 ---
+
+![Sample Output](assets/output_example.png)
+
+___
 
 ## 🛠️ Setup & Installation
 
