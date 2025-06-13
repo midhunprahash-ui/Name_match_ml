@@ -6,13 +6,12 @@ import os
 import argparse 
 
 
-NUM_TOP_GROUP_MATCHES = 2
-NUM_ADDITIONAL_POSSIBLE_MATCHES = 1
+NUM_TOP_GROUP_MATCHES = 4
+NUM_ADDITIONAL_POSSIBLE_MATCHES = 2
 TOTAL_MATCHES_TO_DISPLAY = NUM_TOP_GROUP_MATCHES + NUM_ADDITIONAL_POSSIBLE_MATCHES
 TOP_MATCH_THRESHOLD = 60
 
 
-###
 
 def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     
@@ -21,14 +20,28 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
     first_name_lower = str(first_name).lower().strip()
     last_name_lower = str(last_name).lower().strip()
 
-
     
+    if first_name_lower and last_name_lower:
+        if username_lower == f"{first_name_lower}.{last_name_lower}": return 99.0
+        if username_lower == f"{last_name_lower}.{first_name_lower}": return 99.0
+        if len(first_name_lower) > 0 and username_lower == f"{first_name_lower[0]}.{last_name_lower}": return 99.0
+        if len(last_name_lower) > 0 and username_lower == f"{first_name_lower}.{last_name_lower[0]}": return 99.0
+        if len(first_name_lower) > 0 and username_lower == f"{first_name_lower[:3]}.{last_name_lower}": return 99.0
+        if len(last_name_lower) > 0 and username_lower == f"{first_name_lower}.{last_name_lower[:3]}": return 99.0
+        if len(first_name_lower) > 0 and username_lower == f"{first_name_lower[:3]}_{last_name_lower}": return 99.0
+        if username_lower == f"{first_name_lower}{last_name_lower}": return 99.0
+        if username_lower == f"{last_name_lower}{first_name_lower}": return 99.0
+        if username_lower == f"{first_name_lower} {last_name_lower}": return 99.0
+        if username_lower == f"{last_name_lower} {first_name_lower}": return 99.0
+        if username_lower == f"{first_name_lower}.{last_name_lower[:3]}": return 99.0
+        if username_lower == f"{last_name_lower}.{first_name_lower[:3]}": return 99.0
+        if username_lower == f"{first_name_lower}{last_name_lower[:3]}": return 99.0
 
     numbers_in_username = re.findall(r'\d+', username_lower)
     number_match_bonus = 0
     if numbers_in_username:
         if str(emp_id).lower() in numbers_in_username:
-            number_match_bonus = 6
+            number_match_bonus = 25
 
     
     lev_full = fuzz.ratio(username_lower, employee_name_lower)
@@ -58,16 +71,16 @@ def compute_match_score(username, employee_name, first_name, last_name, emp_id):
             parts = username_lower.split('.')
             if len(parts) > 1 and parts[1] and first_name_lower:
                 if parts[1][0] == first_name_lower[0]:
-                    initial_match_bonus += 5
+                    initial_match_bonus += 10
 
     
     direct_first_name_substring_bonus = 0
     if first_name_lower and first_name_lower in username_lower:
-        direct_first_name_substring_bonus = 5
+        direct_first_name_substring_bonus = 10
 
     direct_last_name_substring_bonus = 0
     if last_name_lower and last_name_lower in username_lower:
-        direct_last_name_substring_bonus = 5
+        direct_last_name_substring_bonus = 10
 
     
     max_lev = max(lev_full, lev_first, lev_last)
