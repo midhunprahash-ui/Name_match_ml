@@ -6,6 +6,8 @@ import re
 import os
 import io
 
+
+
 app = Flask(__name__)
 app.secret_key = 'your_super_secret_key_here'
 
@@ -222,4 +224,4 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=10000)
