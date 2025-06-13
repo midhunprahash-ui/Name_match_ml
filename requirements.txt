@@ -1,5 +1,5 @@
-Flask==3.0.2
-pandas==2.2.2
-thefuzz==0.20.0
-jellyfish==1.0.3
-python-Levenshtein==0.25.1
+Flask
+pandas
+thefuzz
+jellyfish
+python-Levenshtein
