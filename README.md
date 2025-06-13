@@ -3,10 +3,10 @@
 
 > Hence, the core files of this project are:
 	•	`main.py`
-	•	`employee_data.csv`
+	•	`employee.csv`
 	•	`templates`/ folder
 
-*The ML components are included in the repo for reference only, as part of the experimentation process.*
+***The ML components are included in the repo for reference only, as part of the experimentation process.***
 ---
 
 
